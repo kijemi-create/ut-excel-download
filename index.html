@@ -1,0 +1,929 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>지원자 목록 · B안 프로토타입</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root {
+    --typo-default: #131618;
+    --typo-secondary: #30363c;
+    --typo-subtle: #6c767f;
+    --typo-disabled: #b8bfc5;
+    --typo-info: #2684ff;
+    --typo-brand: #1b55f6;
+    --gray900: #222;
+    --gray500: #9e9e9e;
+    --fill-default: #fff;
+    --fill-surface: #f4f6f7;
+    --fill-surface-raised: #e2e6e8;
+    --fill-info-subtle: #ebf5ff;
+    --fill-inverse: #30363c;
+    --border-subtle: #e2e6e8;
+    --border-default: #d1d6da;
+    --border-strong: #131618;
+    --shadow-md: 0 0 4px rgba(0,0,0,.04), 0 4px 8px -1px rgba(0,0,0,.08);
+    --shadow-lg: 0 0 6px rgba(0,0,0,.04), 0 8px 16px -1px rgba(0,0,0,.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #fff; }
+  body {
+    font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+    color: var(--typo-default);
+    font-size: 14px;
+    line-height: 20px;
+    min-width: 1440px;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  img { display: block; }
+
+  /* GNB */
+  .gnb-wrap { padding: 10px 10px 0; }
+  .gnb {
+    background: var(--gray900); border-radius: 12px;
+    display: flex; align-items: center; gap: 24px;
+    padding: 12px 12px 12px 25px; height: 60px;
+  }
+  .gnb-left { flex: 1; display: flex; align-items: center; gap: 20px; }
+  .gnb-menus { display: flex; align-items: center; gap: 6px; }
+  .gnb-menu {
+    display: flex; align-items: center; gap: 2px;
+    padding: 6px 12px; border-radius: 6px;
+    color: #fff; font-size: 16px; font-weight: 700; line-height: 24px; white-space: nowrap;
+  }
+  .gnb-menu.has-chev { padding-right: 6px; }
+  .gnb-menu.active { background: #444; }
+  .gnb-menu img.chev { width: 20px; height: 20px; }
+  .gnb-divider { width: 1px; height: 16px; background: #6a6a6a; }
+  .gnb-onepick { gap: 4px; padding-left: 8px; }
+  .gnb-onepick .emoji { width: 20px; height: 20px; padding: 2.2px; }
+  .gnb-right { display: flex; align-items: center; gap: 20px; }
+  .gnb-post {
+    display: flex; align-items: center; gap: 2px;
+    background: #fff; border: 1px solid #e8e8e8; border-radius: 6px;
+    padding: 6px 8px; font-size: 13px; font-weight: 600; line-height: 20px; color: var(--gray900);
+  }
+  .gnb-post .ic { width: 16px; height: 16px; padding: 2.33px; }
+  .gnb-account { gap: 4px; padding-left: 8px; }
+  .gnb-account .me { width: 20px; height: 20px; position: relative; }
+  .gnb-account .me::before { content: ""; position: absolute; inset: 1.67px; border-radius: 50%; background: #6a6a6a; }
+  .gnb-account .me img { position: absolute; inset: 2.5px; width: 15px; height: 15px; }
+
+  .notice {
+    height: 52px; display: flex; align-items: center; gap: 0;
+    padding: 0 20px; border-bottom: 1px solid var(--fill-surface);
+    font-size: 14px; line-height: 22px; color: var(--typo-secondary);
+  }
+  .notice b { font-weight: 700; color: var(--typo-default); margin-right: 16px; }
+
+  /* Contents */
+  .contents { padding: 32px 40px 48px; }
+  .page-heading { display: flex; align-items: center; gap: 24px; padding-bottom: 24px; position: relative; }
+  .page-heading h1 {
+    flex: 1; font-size: 20px; font-weight: 700; line-height: 28px; letter-spacing: -0.5px;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+    height: 40px; min-width: 68px; padding: 8px 16px;
+    background: #fff; border: 1px solid var(--border-default); border-radius: 8px;
+    font-size: 14px; font-weight: 600; line-height: 20px; white-space: nowrap;
+  }
+  .btn:hover { background: #f9fafb; }
+  .btn .ic16 { width: 16px; height: 16px; }
+  .btn.sm {
+    height: 32px; min-width: 64px; padding: 4px 12px;
+    font-size: 13px; font-weight: 500;
+  }
+  .btn.radius-md { border-radius: 10px; }
+  .btn[aria-disabled="true"] { cursor: default; color: var(--typo-disabled); border-color: var(--border-subtle); }
+  .btn[aria-disabled="true"]:hover { background: #fff; }
+  .btn[aria-disabled="true"] img { opacity: .3; }
+
+  /* Excel dropdown */
+  .excel { position: relative; }
+  .dropdown {
+    position: absolute; top: calc(100% + 4px); right: 0; z-index: 20;
+    width: 191px; padding: 8px;
+    background: #fff; border: 1px solid var(--border-subtle); border-radius: 10px;
+    box-shadow: var(--shadow-md);
+    display: none;
+  }
+  .dropdown.open { display: block; }
+  .dd-item {
+    display: block; width: 100%; text-align: left;
+    min-width: 160px; padding: 12px 16px; border-radius: 6px;
+    font-size: 14px; line-height: 20px; color: var(--typo-default);
+  }
+  .dd-item:hover { background: var(--fill-surface); }
+  .dd-sep { height: 1px; background: var(--fill-surface); }
+  .tooltip {
+    position: absolute; bottom: calc(100% + 4px); left: 50%; transform: translateX(-50%);
+    background: var(--fill-inverse); color: #fff; border-radius: 8px;
+    padding: 8px 12px; font-size: 12px; font-weight: 500; line-height: 18px; white-space: nowrap;
+    display: none; z-index: 30;
+  }
+  .excel.saving:hover .tooltip { display: block; }
+
+  /* Posting cards */
+  .postings { position: relative; display: flex; align-items: center; gap: 16px; overflow: hidden; }
+  .postings::after {
+    content: ""; position: absolute; right: 0; top: 0; width: 80px; height: 114px;
+    background: linear-gradient(to right, rgba(255,255,255,0), #fff 35%);
+    pointer-events: none;
+  }
+  .all-btn {
+    flex: none; width: 68px; height: 68px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: #fff; border: 1px solid var(--border-subtle); border-radius: 16px;
+    font-size: 12px; font-weight: 500; line-height: 18px;
+  }
+  .all-btn img { width: 24px; height: 24px; }
+  .cards { display: flex; gap: 12px; padding: 2px 0 4px; }
+  .card {
+    flex: none; width: 280px; padding: 16px;
+    display: flex; flex-direction: column; gap: 8px; text-align: left;
+    background: #fff; border: 1px solid var(--border-subtle); border-radius: 10px;
+  }
+  .card.selected { border-color: var(--border-strong); box-shadow: var(--shadow-lg); }
+  .card-top { display: flex; align-items: center; justify-content: space-between; }
+  .badge {
+    height: 24px; padding: 2px 8px; border-radius: 4px;
+    background: var(--fill-info-subtle); color: var(--typo-info);
+    font-size: 12px; font-weight: 500; line-height: 18px; display: inline-flex; align-items: center;
+  }
+  .badge.closed { background: var(--fill-surface); color: var(--typo-subtle); }
+  .card-top .link { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+  .card-top .link img { width: 16px; height: 16px; }
+  .card-title {
+    font-size: 14px; font-weight: 600; line-height: 20px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .card-meta { display: flex; gap: 2px; align-items: center; font-size: 14px; line-height: 20px; color: var(--typo-subtle); white-space: nowrap; }
+  .card-meta .n { font-weight: 600; color: var(--typo-info); }
+  .card-meta .n.zero { color: var(--typo-disabled); }
+
+  /* Position tab + filter */
+  .tab-filter { margin-top: 24px; display: flex; flex-direction: column; gap: 16px; }
+  .linetab { position: relative; display: flex; gap: 8px; }
+  .linetab::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--fill-surface); }
+  .linetab button {
+    padding: 12px 4px; font-size: 15px; font-weight: 600; line-height: 22px; color: var(--typo-subtle);
+    position: relative; z-index: 1;
+  }
+  .linetab button.on { color: var(--typo-default); border-bottom: 2px solid var(--border-strong); padding-bottom: 10px; }
+
+  .filter { display: flex; align-items: center; justify-content: space-between; }
+  .segment { display: flex; gap: 4px; padding: 4px; background: var(--fill-surface); border-radius: 8px; }
+  .segment button {
+    height: 32px; min-width: 32px; display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; color: var(--typo-subtle);
+  }
+  .segment button.on { background: #fff; box-shadow: 0 1px 1px rgba(0,0,0,.08), 0 0 1.5px rgba(0,0,0,.02); }
+  .segment button img { width: 20px; height: 20px; }
+  .filter-right { display: flex; align-items: center; gap: 16px; }
+  .check { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; line-height: 20px; color: var(--typo-secondary); }
+  .check .box { width: 20px; height: 20px; border: 1px solid var(--border-default); border-radius: 4px; background: #fff; }
+  .icon-btns { display: flex; gap: 8px; }
+  .icon-btn {
+    width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+    background: #fff; border: 1px solid var(--border-subtle); border-radius: 10px;
+  }
+  .icon-btn:hover { background: #f9fafb; }
+  .icon-btn img { width: 20px; height: 20px; }
+  .vsep { width: 1px; height: 20px; background: var(--fill-surface-raised); }
+
+  /* List */
+  .list { margin-top: 16px; }
+  .stage { display: inline-flex; gap: 4px; padding: 4px; background: var(--fill-surface); border-radius: 8px; }
+  .stage button {
+    height: 32px; padding: 6px 12px; border-radius: 8px;
+    font-size: 13px; line-height: 20px; color: var(--typo-disabled);
+  }
+  .stage button.on { background: #fff; color: var(--typo-default); font-weight: 500; box-shadow: 0 1px 1px rgba(0,0,0,.08), 0 0 1.5px rgba(0,0,0,.02); }
+  .stage button .n { color: var(--typo-disabled); margin-left: 2px; }
+  .stage button.on .n { color: var(--typo-info); }
+
+  .table { margin-top: 12px; }
+  .row { display: flex; align-items: stretch; background: #fff; }
+  .row + .row { border-top: 1px solid var(--fill-surface); }
+  .thead { background: var(--fill-surface); border-radius: 8px 8px 0 0; }
+  .thead .cell { padding-top: 10px; padding-bottom: 10px; font-size: 14px; font-weight: 500; line-height: 20px; color: var(--typo-secondary); }
+  .cell { display: flex; flex-direction: column; justify-content: center; padding: 20px 16px; min-width: 0; }
+  .c-chk { padding: 20px; flex: none; }
+  .thead .c-chk { padding-top: 10px; padding-bottom: 10px; }
+  .c-pos { width: 158px; flex: none; font-size: 15px; font-weight: 600; line-height: 22px; }
+  .c-name { width: 272px; flex: none; }
+  .c-edu, .c-car, .c-int { flex: 1; }
+  .c-date { width: 150px; flex: none; gap: 4px; }
+  .cb { width: 20px; height: 20px; border: 1px solid var(--border-default); border-radius: 4px; background: #fff; position: relative; }
+  .c-chk { cursor: pointer; }
+  .cb.on, .cb.mixed { background: var(--typo-brand); border-color: var(--typo-brand); }
+  .cb.on::after {
+    content: ""; position: absolute; left: 6px; top: 2px; width: 5px; height: 10px;
+    border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+  }
+  .cb.mixed::after { content: ""; position: absolute; left: 4px; right: 4px; top: 8px; height: 2px; border-radius: 1px; background: #fff; }
+  .row.selected { background: rgba(240,245,255,.4); }
+  .row:not(.thead):hover { background: rgba(240,245,255,1); }
+
+  /* 하단 액션바 */
+  .actionbar { position: fixed; left: 0; right: 0; bottom: 24px; z-index: 40; display: none; justify-content: center; pointer-events: none; }
+  .actionbar.show { display: flex; }
+  .ab-inner {
+    pointer-events: auto; display: flex; align-items: center; gap: 40px;
+    padding: 8px 16px; border-radius: 10px; background: var(--fill-inverse);
+    box-shadow: 0 16px 16px rgba(0,0,0,.1), 0 0 4px rgba(0,0,0,.04);
+  }
+  .ab-count { display: flex; gap: 4px; padding: 2px; font-size: 14px; line-height: 20px; color: #fff; white-space: nowrap; }
+  .ab-count b { font-weight: 600; color: var(--typo-info); }
+  .ab-btns { display: flex; align-items: center; gap: 16px; }
+  .ab-btn {
+    width: 48px; display: flex; flex-direction: column; align-items: center;
+    color: #fff; font-size: 12px; font-weight: 500; line-height: 18px; white-space: nowrap;
+  }
+  .ab-ic { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 10px; transition: background-color .15s; }
+  .ab-ic svg { width: 20px; height: 20px; }
+  .ab-btn:hover .ab-ic { background: rgba(255,255,255,.08); }
+  .ab-btn:disabled { color: var(--typo-disabled); cursor: not-allowed; }
+  .ab-btn:disabled .ab-ic { background: transparent; }
+  .ab-sep { width: 1px; height: 20px; background: var(--fill-surface-raised); }
+  .ab-dl { position: relative; }
+  .ab-menu {
+    position: absolute; bottom: calc(100% + 18px); left: 50%; transform: translateX(-50%);
+    width: 168px; padding: 8px; display: none;
+    background: #fff; border: 1px solid var(--border-subtle); border-radius: 10px; box-shadow: var(--shadow-md);
+  }
+  .ab-menu.open { display: block; }
+  .th-info { display: inline-flex; align-items: center; gap: 4px; }
+  .th-info img { width: 16px; height: 16px; }
+
+  .person { display: flex; gap: 12px; align-items: flex-start; }
+  .person > img { width: 40px; height: 40px; }
+  .person-info { display: flex; flex-direction: column; gap: 8px; }
+  .name-line { display: flex; gap: 8px; align-items: center; }
+  .name { display: flex; gap: 4px; align-items: center; font-size: 16px; font-weight: 600; line-height: 24px; }
+  .name img { width: 16px; height: 16px; margin: 2px; }
+  .unread { display: flex; gap: 4px; align-items: center; color: var(--typo-info); font-size: 13px; font-weight: 500; }
+  .unread::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--typo-info); }
+  .age { font-size: 13px; line-height: 20px; color: var(--typo-subtle); }
+  .chip {
+    align-self: flex-start; height: 20px; padding: 0 4px; border-radius: 4px;
+    background: var(--fill-surface); border: 1px solid var(--border-subtle);
+    font-size: 12px; font-weight: 500; line-height: 18px; color: var(--typo-secondary);
+  }
+  .c-edu, .c-car { gap: 2px; white-space: nowrap; }
+  .t1 { font-size: 15px; font-weight: 600; line-height: 22px; color: var(--gray900); }
+  .t2 { font-size: 14px; line-height: 22px; color: var(--gray900); overflow: hidden; text-overflow: ellipsis; }
+  .t3 { font-size: 14px; line-height: 22px; color: var(--gray500); overflow: hidden; text-overflow: ellipsis; }
+  .int-date { font-size: 15px; font-weight: 600; line-height: 22px; color: var(--gray900); }
+
+  .pagination { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 16px; }
+  .pagination button { width: 32px; height: 32px; border-radius: 8px; font-size: 14px; color: var(--typo-subtle); }
+  .pagination button.on { background: var(--fill-surface); color: var(--typo-default); font-weight: 600; }
+  .pagination .arrow { color: var(--typo-disabled); font-size: 16px; }
+
+  /* 화면 전환 */
+  .view[hidden] { display: none; }
+
+  /* 공고 관리 (테스트 서버 화면 참고) */
+  .btn.primary { background: var(--typo-brand); border-color: var(--typo-brand); color: #fff; border-radius: 10px; padding: 0 16px; }
+  .btn.primary:hover { background: #1647d6; }
+  .btn.primary svg { width: 16px; height: 16px; }
+  .jobs-tabs { margin-top: 0; }
+  .jobs-tabs button { font-size: 15px; }
+  .jobs-tabs button.on { border-bottom-color: var(--border-strong); }
+  .jobs-bar { display: flex; align-items: center; justify-content: space-between; margin-top: 24px; }
+  .jobs-total { font-size: 13px; line-height: 20px; color: var(--typo-subtle); }
+  .jobs-table { margin-top: 12px; }
+  .jobs-grid { display: grid; grid-template-columns: 80px minmax(0, 1fr) repeat(5, 92px); }
+  .jobs-head {
+    background: var(--fill-surface); border-radius: 8px 8px 0 0;
+    font-size: 13px; line-height: 20px; color: var(--typo-subtle);
+  }
+  .jobs-head > span { padding: 8px 16px; white-space: nowrap; }
+  .job { border-bottom: 1px solid var(--border-subtle); cursor: pointer; transition: background-color .15s; }
+  .job:hover { background: #f9fafb; }
+  .job .jobs-grid { min-height: 88px; }
+  .job .cell-x { display: flex; align-items: center; padding: 0 16px; }
+  .job .info { display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 20px 16px; min-width: 0; }
+  .badge.success { background: #eefff6; color: #02b160; height: 22px; padding: 2px 6px; }
+  .job-title {
+    font-size: 16px; font-weight: 600; line-height: 24px; text-align: left;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .job:hover .job-title { text-decoration: underline; }
+  .job-meta {
+    display: flex; align-items: center; gap: 12px; overflow: hidden; white-space: nowrap;
+    font-size: 13px; line-height: 20px; color: var(--typo-secondary);
+  }
+  .job-meta .m { font-weight: 500; display: flex; gap: 4px; }
+  .job-meta .m em { font-style: normal; font-weight: 400; color: var(--typo-subtle); }
+  .job-meta .s { color: var(--typo-subtle); }
+  .job-meta i { width: 1px; height: 8px; background: var(--fill-surface-raised); flex: none; }
+  .job .num { font-size: 16px; line-height: 24px; color: var(--typo-subtle); border-radius: 8px; }
+  .job .num:hover { text-decoration: underline; }
+  .job-extra { padding: 0 16px 12px 96px; }
+  .job-strip {
+    height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 8px 12px 8px 16px; border-radius: 8px; background: var(--fill-surface);
+  }
+  .job-strip .l { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 14px; font-weight: 500; line-height: 20px; color: var(--typo-secondary); white-space: nowrap; }
+  .job-strip .l svg { width: 16px; height: 16px; flex: none; }
+  .job-strip .l .ic-jump { color: var(--typo-brand); }
+  .job-strip .l .ic-smart { width: 14px; height: 14px; border-radius: 50%; background: var(--typo-info); flex: none; }
+  .job-strip .l i { width: 1px; height: 12px; background: #d1d6da; }
+  .job-strip .l b { font-weight: 700; color: var(--typo-default); }
+  .job-strip .r { display: flex; align-items: center; gap: 4px; font-size: 13px; line-height: 20px; color: var(--typo-secondary); white-space: nowrap; }
+  .job-strip .more { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: var(--typo-subtle); }
+  .job-strip .more svg { width: 16px; height: 16px; }
+  .jobs-pager { display: flex; align-items: center; justify-content: space-between; margin-top: 24px; }
+  .jobs-pager .pagination { margin-top: 0; flex: 1; }
+  .jobs-pager .per { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--typo-secondary); }
+  .jobs-pager .per span:first-child { border: 1px solid var(--border-default); border-radius: 6px; padding: 2px 8px; }
+  .jobs-notes {
+    margin-top: 56px; padding: 16px 20px; border-radius: 8px; background: var(--fill-surface);
+    list-style: none; font-size: 12px; line-height: 20px; color: var(--typo-subtle);
+  }
+  .jobs-notes li::before { content: "· "; }
+
+  /* Progress snackbar */
+  .snackbar {
+    position: fixed; top: 94px; right: 30px; z-index: 50;
+    width: 420px; padding: 16px;
+    background: #fff; border: 1px solid var(--border-subtle); border-radius: 10px;
+    box-shadow: var(--shadow-lg);
+    display: none; align-items: center; gap: 12px;
+  }
+  .snackbar.show { display: flex; }
+  .snackbar .spin { width: 24px; height: 24px; animation: spin 1s linear infinite; align-self: flex-start; }
+  .snackbar .txt { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .snackbar .ttl { font-size: 14px; font-weight: 600; line-height: 20px; color: var(--typo-brand); }
+  .snackbar .pct { font-size: 13px; line-height: 20px; color: var(--typo-subtle); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Done toast */
+  .toast {
+    position: fixed; left: 50%; bottom: 40px; z-index: 60;
+    transform: translate(-50%, 16px); opacity: 0; pointer-events: none;
+    transition: opacity .2s, transform .2s;
+    background: var(--fill-inverse); color: #fff; border-radius: 10px;
+    padding: 12px 20px; box-shadow: var(--shadow-lg);
+    font-size: 14px; font-weight: 500; line-height: 20px; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  /* 진행자 패널: Shift+L 로 열고 닫음 */
+  .facil {
+    position: fixed; left: 16px; bottom: 16px; z-index: 100; width: 360px; max-height: 60vh;
+    background: #131618; color: #e2e6e8; border-radius: 12px; padding: 14px;
+    font-size: 12px; line-height: 18px; display: none; flex-direction: column; gap: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.3);
+  }
+  .facil.show { display: flex; }
+  .facil header { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 13px; }
+  .facil ol { overflow: auto; padding-left: 20px; flex: 1; }
+  .facil li { padding: 2px 0; }
+  .facil li .t { color: #8b949b; margin-right: 6px; }
+  .facil li.hit { color: #7cc4ff; }
+  .facil .acts { display: flex; gap: 6px; }
+  .facil .acts button { background: #30363c; color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 12px; }
+  .facil .hint { color: #8b949b; }
+</style>
+</head>
+<body>
+
+<div class="gnb-wrap">
+  <nav class="gnb">
+    <div class="gnb-left">
+      <img src="assets/logo-jk.svg" width="109" height="18" alt="JOBKOREA" data-log="GNB 로고">
+      <div class="gnb-menus">
+        <button class="gnb-menu" data-log="GNB 기업 홈">기업 홈</button>
+        <button class="gnb-menu" id="gnbJobs" data-log="GNB 공고 관리">공고 관리</button>
+        <button class="gnb-menu has-chev" id="gnbApplicants" data-log="GNB 지원자 관리">지원자 관리<img class="chev" src="assets/gnb-chevron-down.svg" alt=""></button>
+        <button class="gnb-menu has-chev" data-log="GNB 인재풀">인재풀<img class="chev" src="assets/gnb-chevron-down.svg" alt=""></button>
+        <span class="gnb-divider"></span>
+        <button class="gnb-menu has-chev gnb-onepick" data-log="GNB 원픽"><img class="emoji" src="assets/gnb-onepick.svg" alt="">원픽<img class="chev" src="assets/gnb-chevron-down.svg" alt=""></button>
+        <button class="gnb-menu" data-log="GNB 채용 상품">채용 상품</button>
+        <button class="gnb-menu" data-log="GNB 헤드헌팅">헤드헌팅</button>
+        <button class="gnb-menu" data-log="GNB 기업라운지">기업라운지</button>
+      </div>
+    </div>
+    <div class="gnb-right">
+      <button class="gnb-post" data-log="GNB 공고등록"><img class="ic" src="assets/gnb-edit.svg" alt="">공고등록</button>
+      <button class="gnb-menu has-chev gnb-account" data-log="GNB 내 계정"><span class="me"><img src="assets/gnb-person.svg" alt=""></span>내 계정<img class="chev" src="assets/gnb-chevron-down.svg" alt=""></button>
+    </div>
+  </nav>
+</div>
+<div class="notice"><b>공지</b>공지사항 노출 영역입니다.</div>
+
+<main class="contents view" id="view-jobs">
+  <div class="page-heading">
+    <h1>공고 관리</h1>
+    <button class="btn primary" data-log="공고 관리: 공고 등록">공고 등록<svg viewBox="0 0 24 24"><path d="M15.963 9c.885 0 1.361 1.002.786 1.65l-3.962 4.464a1.06 1.06 0 0 1-1.573 0L7.25 10.65C6.676 10.002 7.153 9 8.038 9z" fill="currentColor"/></svg></button>
+  </div>
+  <div class="linetab jobs-tabs">
+    <button class="on" data-log="공고 관리 탭: 진행중">진행중 10</button>
+    <button data-log="공고 관리 탭: 대기중">대기중 0</button>
+    <button data-log="공고 관리 탭: 마감">마감 38</button>
+    <button data-log="공고 관리 탭: 전체">전체 48</button>
+  </div>
+  <div class="jobs-bar">
+    <p class="jobs-total">총 10개</p>
+    <button class="check" data-log="공고 관리: 미열람 지원자 있는 공고"><span class="box"></span>미열람 지원자 있는 공고</button>
+  </div>
+  <div class="jobs-table">
+    <div class="jobs-grid jobs-head">
+      <span>상태</span><span>공고 정보</span><span>전체 지원자</span><span>미열람</span><span>미심사</span><span>최종 합격</span><span>불합격</span>
+    </div>
+    <div id="jobList"></div>
+  </div>
+  <div class="jobs-pager">
+    <div class="pagination">
+      <button class="arrow" data-log="공고 관리 페이지: 이전">‹</button>
+      <button class="on" data-log="공고 관리 페이지 1">1</button>
+      <button class="arrow" data-log="공고 관리 페이지: 다음">›</button>
+    </div>
+    <div class="per"><span>10 ⌄</span><span>개씩 보기</span></div>
+  </div>
+  <ul class="jobs-notes">
+    <li>채용 공고 게재 기간은 최초 게재일로부터 최대 60일입니다.</li>
+    <li>무료 공고는 최대 5개까지 등록할 수 있으며, 초과 시 ‘대기중’ 상태로 전환됩니다. (유료 서비스 이용 시 등록 제한 없음)</li>
+    <li>‘대기중’ 공고는 접수 마감일까지 대기중 리스트에서 확인할 수 있으며, 마감일이 지난 경우 마감 리스트에서 1년간 확인할 수 있습니다.</li>
+    <li>마감된 공고는 마감일로부터 1년간 확인할 수 있습니다. (지원자 정보는 공고 마감일 기준 90일까지 열람 가능)</li>
+  </ul>
+</main>
+
+<main class="contents view" id="view-applicants" hidden>
+  <div class="page-heading">
+    <h1>지원자 목록</h1>
+    <div class="excel" id="excel">
+      <button class="btn" id="excelBtn" aria-haspopup="menu" aria-expanded="false" data-log="[엑셀] 전체 지원자 엑셀 저장 버튼">
+        <img class="ic16" src="assets/download.svg" alt="">
+        전체 지원자 엑셀 저장
+        <img class="ic16" src="assets/select-down.svg" alt="">
+      </button>
+      <div class="tooltip" role="tooltip">엑셀 저장 중입니다.</div>
+      <div class="dropdown" id="dropdown" role="menu">
+        <button class="dd-item" role="menuitem" data-choice="current" data-log="[엑셀] 현재 공고 지원자">현재 공고 지원자</button>
+        <div class="dd-sep"></div>
+        <button class="dd-item" role="menuitem" data-choice="ongoing" data-log="[엑셀] 진행중 공고 지원자">진행중 공고 지원자</button>
+        <button class="dd-item" role="menuitem" data-choice="closed" data-log="[엑셀] 마감 공고 지원자">마감 공고 지원자</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="postings">
+    <button class="all-btn" data-log="공고 전체보기"><img src="assets/menu.svg" alt="">전체보기</button>
+    <div class="cards" id="cards"></div>
+  </div>
+
+  <div class="tab-filter">
+    <div class="linetab">
+      <button class="on" data-log="포지션 탭: 포지션 전체">포지션 전체</button>
+      <button data-log="포지션 탭 2">{포지션명}</button>
+      <button data-log="포지션 탭 3">{포지션명}</button>
+      <button data-log="포지션 탭 4">{포지션명}</button>
+    </div>
+    <div class="filter">
+      <div class="segment">
+        <button class="on" data-log="보기: 리스트"><img src="assets/horizontal-list.svg" alt="리스트"></button>
+        <button data-log="보기: 칸반"><img src="assets/kanban-list.svg" alt="칸반"></button>
+      </div>
+      <div class="filter-right">
+        <button class="check" data-log="미열람 지원자만 보기"><span class="box"></span>미열람 지원자만 보기</button>
+        <div class="icon-btns">
+          <button class="icon-btn" data-log="툴바: 검색"><img src="assets/search.svg" alt="검색"></button>
+          <button class="icon-btn" data-log="툴바: 필터"><img src="assets/filter.svg" alt="필터"></button>
+          <button class="icon-btn" data-log="툴바: 정렬"><img src="assets/sort.svg" alt="정렬"></button>
+          <button class="icon-btn" data-log="툴바: 스크랩"><img src="assets/scrap.svg" alt="스크랩"></button>
+        </div>
+        <span class="vsep"></span>
+        <button class="btn radius-md" data-log="채용 단계 편집"><img class="ic16" src="assets/edit.svg" alt="">채용 단계 편집</button>
+      </div>
+    </div>
+  </div>
+
+  <section class="list">
+    <div class="stage">
+      <button data-log="단계: 지원서 검토">지원서 검토<span class="n">N</span></button>
+      <button class="on" data-log="단계: 1차 면접">1차 면접<span class="n">N</span></button>
+      <button data-log="단계: 2차 면접">2차 면접<span class="n">N</span></button>
+      <button data-log="단계: 3차 면접">3차 면접<span class="n">N</span></button>
+      <button data-log="단계: 4차 면접">4차 면접<span class="n">N</span></button>
+      <button data-log="단계: 최종합격">최종합격<span class="n">N</span></button>
+    </div>
+
+    <div class="table" id="table">
+      <div class="row thead">
+        <div class="cell c-chk" data-log="목록: 전체 선택 체크박스"><span class="cb"></span></div>
+        <div class="cell c-pos" style="font-size:14px;font-weight:500">포지션</div>
+        <div class="cell c-name">이름</div>
+        <div class="cell c-edu">학력</div>
+        <div class="cell c-car">경력</div>
+        <div class="cell c-date"><span class="th-info">지원일<img src="assets/info.svg" alt=""></span></div>
+        <div class="cell c-int">면접 일정</div>
+      </div>
+    </div>
+
+    <div class="pagination">
+      <button class="arrow" data-log="페이지: 이전">‹</button>
+      <button class="on" data-log="페이지 1">1</button>
+      <button data-log="페이지 2">2</button>
+      <button data-log="페이지 3">3</button>
+      <button data-log="페이지 4">4</button>
+      <button class="arrow" data-log="페이지: 다음">›</button>
+    </div>
+  </section>
+</main>
+
+<div class="snackbar" id="snackbar" role="status">
+  <img class="spin" src="assets/progress.svg" alt="">
+  <div class="txt">
+    <div class="ttl">지원자 엑셀 저장 진행 중</div>
+    <div class="pct"><span id="pct">0</span>% 완료</div>
+  </div>
+  <button class="btn sm" id="cancelBtn" data-log="[엑셀] 저장 취소">취소</button>
+</div>
+
+<div class="toast" id="done" role="status" aria-live="polite">파일이 저장되었습니다</div>
+
+<div class="actionbar" id="actionbar" role="toolbar" aria-label="선택한 지원자 작업">
+  <div class="ab-inner">
+    <div class="ab-count"><b id="selCount">0명</b>선택됨</div>
+    <div class="ab-btns">
+      <button class="ab-btn" data-log="[액션바] 단계 이동"><span class="ab-ic"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M8.62874 12.4288C8.48524 12.2853 8.41349 12.1071 8.41349 11.8943V5.36351L6.09624 7.68076C5.95774 7.81926 5.78783 7.88851 5.58649 7.88851C5.38533 7.88851 5.20716 7.8161 5.05199 7.67126C4.89683 7.5161 4.81924 7.33785 4.81924 7.13651C4.81924 6.93535 4.89683 6.75718 5.05199 6.60201L8.52124 3.13276C8.61474 3.0391 8.71341 2.9731 8.81724 2.93476C8.92108 2.89626 9.03324 2.87701 9.15374 2.87701C9.27441 2.87701 9.38824 2.89626 9.49524 2.93476C9.60224 2.9731 9.70258 3.0391 9.79624 3.13276L13.2905 6.62701C13.4392 6.77568 13.5125 6.9481 13.5105 7.14426C13.5087 7.34043 13.4302 7.5161 13.275 7.67126C13.1198 7.8161 12.9442 7.8911 12.748 7.89626C12.5518 7.90126 12.3762 7.82626 12.2212 7.67126L9.91349 5.36351V11.9038C9.91349 12.1166 9.84166 12.2933 9.69799 12.4338C9.55449 12.5741 9.37633 12.6443 9.16349 12.6443C8.95066 12.6443 8.77241 12.5724 8.62874 12.4288ZM14.5047 21.0558C14.3977 21.0173 14.2974 20.9513 14.2037 20.8578L10.7095 17.3635C10.5608 17.2147 10.4875 17.0423 10.4895 16.8463C10.4913 16.6501 10.5698 16.4744 10.725 16.3193C10.8802 16.1744 11.0558 16.0994 11.252 16.0943C11.4482 16.0891 11.6237 16.1641 11.7787 16.3193L14.0865 18.627V12.0865C14.0865 11.8737 14.1583 11.6971 14.302 11.5568C14.4455 11.4164 14.6237 11.3463 14.8365 11.3463C15.0493 11.3463 15.2276 11.418 15.3712 11.5615C15.5147 11.7052 15.5865 11.8834 15.5865 12.0963V18.627L17.9037 16.3095C18.0422 16.1712 18.2122 16.102 18.4135 16.102C18.6147 16.102 18.7928 16.1744 18.948 16.3193C19.1032 16.4744 19.1807 16.6526 19.1807 16.8538C19.1807 17.0551 19.1032 17.2333 18.948 17.3885L15.4787 20.8578C15.3852 20.9513 15.2866 21.0173 15.1827 21.0558C15.0789 21.0943 14.9667 21.1135 14.8462 21.1135C14.7256 21.1135 14.6117 21.0943 14.5047 21.0558Z"/></svg></span>단계 이동</button>
+      <button class="ab-btn" data-log="[액션바] 심사하기"><span class="ab-ic"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M1.923 12.877a.7.7 0 0 1-.22-.522q.003-.3.235-.532a.78.78 0 0 1 .527-.225.7.7 0 0 1 .527.225l3.723 3.723.25-.25q.147.07.307.172.161.103.316.259.233.232.225.527a.76.76 0 0 1-.24.527l-.24.24a.92.92 0 0 1-.633.264.84.84 0 0 1-.633-.264zm10.427 2.654 8.673-8.673a.7.7 0 0 1 .522-.22q.3.002.532.235.217.232.225.527a.7.7 0 0 1-.225.527l-9.094 9.094a.87.87 0 0 1-.633.271.87.87 0 0 1-.633-.27l-4.144-4.145a.72.72 0 0 1-.213-.514.75.75 0 0 1 .213-.54.74.74 0 0 1 .535-.232q.3 0 .534.232zm4.061-7.589-3.88 3.881a.72.72 0 0 1-.515.213.75.75 0 0 1-.54-.213.74.74 0 0 1-.232-.534q0-.303.233-.535l3.88-3.881a.72.72 0 0 1 .515-.213.75.75 0 0 1 .54.213.74.74 0 0 1 .232.535q0 .301-.233.534"/></svg></span>심사하기</button>
+      <span class="ab-sep"></span>
+      <button class="ab-btn" id="abRead" data-log="[액션바] 열람 처리"><span class="ab-ic"><svg viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M18.707 7.293a1 1 0 0 1 0 1.414l-8 8a1 1 0 0 1-1.454-.043l-4-4.5a1 1 0 0 1 1.494-1.328l3.296 3.707 7.25-7.25a1 1 0 0 1 1.414 0"/></svg></span>열람 처리</button>
+      <button class="ab-btn" data-log="[액션바] 면접 제안"><span class="ab-ic"><svg viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M19.492 4a2.5 2.5 0 0 1 2.498 2.5v11c0 1.38-1.118 2.5-2.498 2.5H4.498a2.5 2.5 0 0 1-2.499-2.5v-11A2.5 2.5 0 0 1 4.498 4zm-6.89 9.52a1.25 1.25 0 0 1-1.214 0l-7.89-4.385V17.5a1 1 0 0 0 1 1h14.994a1 1 0 0 0 1-1V9.135zM4.498 5.5a1 1 0 0 0-1 1v.92l8.497 4.722 8.496-4.722V6.5a1 1 0 0 0-.999-1z"/></svg></span>면접 제안</button>
+      <div class="ab-dl">
+        <button class="ab-btn" id="abDownload" data-log="[액션바] 다운로드"><span class="ab-ic"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M19.459 19.846a.825.825 0 1 1 1.152 1.18c-.566.553-1.33.86-2.122.86H5.37a3.04 3.04 0 0 1-2.122-.86.825.825 0 0 1 1.152-1.18c.254.248.602.39.97.39h13.118c.367 0 .716-.142.97-.39m-8.353-17.02a.825.825 0 0 1 1.65 0v10.211l3.612-3.342a.825.825 0 0 1 1.12 1.212l-4.997 4.623a.825.825 0 0 1-1.12 0l-4.997-4.623a.826.826 0 0 1 1.12-1.212l3.612 3.342z"/></svg></span>다운로드</button>
+        <div class="ab-menu" id="abMenu" role="menu">
+          <button class="dd-item" role="menuitem" data-dl="excel" data-log="[액션바] 다운로드 > 지원자 정보 (Excel)">지원자 정보 (Excel)</button>
+          <button class="dd-item" role="menuitem" data-dl="pdf" data-log="[액션바] 다운로드 > 이력서 (PDF)">이력서 (PDF)</button>
+        </div>
+      </div>
+      <button class="ab-btn" data-log="[액션바] 더보기"><span class="ab-ic"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M6 10.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3M12 10.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3M18 10.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3"/></svg></span>더보기</button>
+    </div>
+  </div>
+</div>
+
+<aside class="facil" id="facil">
+  <header>진행자 로그 <span class="hint">Shift+L 닫기</span></header>
+  <ol id="logList"></ol>
+  <div class="acts">
+    <button id="copyLog">로그 복사</button>
+    <button id="resetAll">초기화 (다음 참가자)</button>
+  </div>
+</aside>
+
+<script>
+  // 지원자 행 (시안의 3가지 행 패턴 반복)
+  const rows = [
+    { pos: '인사관리자', unread: true, chip: '중복 지원자', int: 'btn' },
+    { pos: '$포지션 명 길어질 경우 2줄로 노출$', dateChip: 'NN일 경과', int: 'btn' },
+    { pos: '$포지션 명$', chip: '중복 지원자', dateChip: 'NN일 경과', int: '01.30(금) 오전 10:00' },
+    { pos: '인사관리자', unread: true, int: 'btn' },
+    { pos: '$포지션 명$', dateChip: 'NN일 경과', int: '02.03(화) 오후 2:00' },
+  ];
+  const table = document.getElementById('table');
+  rows.forEach((r, i) => {
+    const el = document.createElement('div');
+    el.className = 'row';
+    el.innerHTML = `
+      <div class="cell c-chk" data-log="목록: 행 ${i + 1} 체크박스"><span class="cb"></span></div>
+      <div class="cell c-pos">${r.pos}</div>
+      <div class="cell c-name">
+        <div class="person">
+          <img src="assets/avatar.svg" alt="">
+          <div class="person-info">
+            <div>
+              <div class="name-line">
+                <span class="name">김하린<img src="assets/scrap-sm.svg" alt=""></span>
+                ${r.unread ? '<span class="unread">미열람</span>' : ''}
+              </div>
+              <div class="age">(만 20세, 여)</div>
+            </div>
+            ${r.chip ? `<span class="chip">${r.chip}</span>` : ''}
+          </div>
+        </div>
+      </div>
+      <div class="cell c-edu">
+        <div class="t1">대학교(4년) 졸업</div>
+        <div class="t2">대한민국 대학교 대한민국 대학교 글 길어질 경우 랄라</div>
+        <div class="t3">금속공예과 글 길어질 겨우 말줄임아아</div>
+      </div>
+      <div class="cell c-car">
+        <div class="t1">13년 9개월 ∙ 재직중</div>
+        <div class="t2">(주)스타벅스 코리아 길어질 경우</div>
+        <div class="t3">희망연봉 25,000만원</div>
+      </div>
+      <div class="cell c-date">
+        <div class="int-date">25.01.10(목)</div>
+        ${r.dateChip ? `<span class="chip">${r.dateChip}</span>` : ''}
+      </div>
+      <div class="cell c-int">
+        ${r.int === 'btn'
+          ? `<button class="btn sm" style="align-self:flex-start" data-log="목록: 행 ${i + 1} 면접 제안하기">면접 제안하기</button>`
+          : `<div class="int-date">${r.int}</div>`}
+      </div>`;
+    el.dataset.log = `목록: 행 ${i + 1}`;
+    table.appendChild(el);
+  });
+
+  // ---- 공고 데이터 (공고 관리 목록 · 지원자 관리 공고 카드 공용) ----
+  const JUMP_ICON = '<svg class="ic-jump" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" fill="currentColor" d="M14.619 2c1.052 0 1.905.93 1.905 2.078v1.818h3.095C20.934 5.896 22 7.06 22 8.494v10.909C22 20.837 20.934 22 19.619 22H4.381C3.066 22 2 20.837 2 19.403V8.493C2 7.06 3.066 5.897 4.381 5.897h3.095V4.078C7.476 2.93 8.33 2 9.381 2zm0 11.948v.52c0 .573-.426 1.039-.952 1.039h-3.334c-.526 0-.952-.466-.952-1.04v-.519H3.429v5.455c0 .573.426 1.039.952 1.039h15.238c.526 0 .952-.466.952-1.04v-5.454zm-3.81 0h2.382V12.39h-2.382zM4.382 7.455c-.526 0-.952.465-.952 1.039v3.896H9.38v-.52c0-.574.426-1.039.952-1.039h3.334c.526 0 .952.465.952 1.04v.519h5.952V8.494c0-.574-.426-1.04-.952-1.04zm5-3.897c-.263 0-.476.233-.476.52v1.818h6.19V4.078c0-.287-.213-.52-.476-.52z"/></svg>';
+  const MORE_ICON = '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 16.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3M12 10.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3M12 4.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3"/></svg>';
+  const STRIP = {
+    jump: '<span class="l">' + JUMP_ICON + '점프업 3회 (PC+M)</span>',
+    smart: '<span class="l"><span class="ic-smart"></span>스마트픽 (라이트) 외 1건<i></i><b>6회 노출 · 0회 클릭</b> 성과!</span>',
+    promo: '<span class="l"><span class="ic-smart"></span>스마트픽으로 공고 노출을 높여, 지원자 <b>25~30명</b>을 더 만나보세요.<i></i><b>스마트픽 신청 ›</b></span><span class="r">베스트 채용 상품 보기</span>',
+  };
+  const JOBS = [
+    { title: '[경력 1년↑] 코리아유니버스 그래픽 디자이너 채용', period: '26.10.20 ~ 26.11.19', view: 128, no: 10081920, mod: '26.11.04', owner: '김하늘', counts: [12, 4, 5, 0, 1], strip: 'jump' },
+    { title: '인천공항시설관리㈜ 2026년 제2차 정기채용', period: '26.10.15 ~ 26.11.30', view: 342, no: 10081891, mod: '26.11.04', owner: '이호은', counts: [34, 4, 10, 2, 5], strip: 'smart' },
+    { title: '[신입/경력] 브랜드 마케팅 담당자 채용', period: '상시 채용 (마감: 27.01.03)', view: 57, no: 10081871, mod: '26.11.03', owner: '채용 담당자', counts: [8, 0, 3, 0, 0], strip: 'promo' },
+    { title: '물류센터 운영관리 정규직 채용 (경기 이천)', period: '26.10.28 ~ 26.11.27', view: 210, no: 10081870, mod: '26.11.03', owner: '채용 담당자', counts: [21, 4, 9, 0, 2] },
+    { title: '프론트엔드 개발자 (React) 경력 채용', period: '26.10.25 ~ 26.11.24', view: 189, no: 10081869, mod: '26.11.02', owner: '박서준', counts: [15, 2, 6, 1, 3], strip: 'jump' },
+    { title: '고객상담(CS) 파트 계약직 채용', period: '상시 채용 (마감: 26.12.19)', view: 96, no: 10081861, mod: '26.11.02', owner: '채용 담당자', counts: [27, 7, 12, 0, 4] },
+    { title: '재무회계 담당 경력직 채용', period: '26.10.21 ~ 26.11.20', view: 74, no: 10081860, mod: '26.11.01', owner: '채용 담당자', counts: [6, 1, 2, 0, 1], strip: 'promo' },
+    { title: '2026 하반기 영업관리 신입사원 공개채용', period: '26.10.10 ~ 26.11.09', view: 512, no: 10081826, mod: '26.10.31', owner: '이호은', counts: [48, 9, 20, 3, 8] },
+    { title: '품질관리(QC) 엔지니어 채용', period: '26.10.18 ~ 26.11.17', view: 63, no: 10081822, mod: '26.10.30', owner: '채용 담당자', counts: [5, 0, 1, 0, 0] },
+    { title: '인사총무 담당자 채용 (인사관리자)', period: '26.10.30 ~ 26.11.29', view: 41, no: 10081818, mod: '26.10.30', owner: '김하늘', counts: [3, 3, 3, 0, 0], strip: 'promo' },
+  ];
+  const COUNT_LABEL = ['전체 지원자', '미열람', '미심사', '최종 합격', '불합격'];
+
+  const jobList = document.getElementById('jobList');
+  JOBS.forEach((j, i) => {
+    const el = document.createElement('div');
+    el.className = 'job';
+    el.dataset.job = i;
+    el.dataset.log = `공고 관리: 공고 ${i + 1} 행`;
+    el.innerHTML = `
+      <div class="jobs-grid">
+        <div class="cell-x"><span class="badge success">진행중</span></div>
+        <div class="info">
+          <button class="job-title" data-log="공고 관리: 공고 ${i + 1} 제목">${j.title}</button>
+          <div class="job-meta">
+            <span class="m">${j.period}</span><i></i>
+            <span class="m"><em>조회</em>${j.view}</span><i></i>
+            <span class="m"><em>No.</em>${j.no}</span><i></i>
+            <span class="s">${j.mod} 수정</span><i></i>
+            <span class="s">${j.owner}</span>
+          </div>
+        </div>
+        ${j.counts.map((c, k) => `<div class="cell-x"><button class="num" data-log="공고 관리: 공고 ${i + 1} ${COUNT_LABEL[k]} 수">${c}</button></div>`).join('')}
+      </div>
+      ${j.strip ? `<div class="job-extra"><div class="job-strip">${STRIP[j.strip]}${j.strip === 'promo' ? '' : `<span class="more">${MORE_ICON}</span>`}</div></div>` : ''}`;
+    jobList.appendChild(el);
+  });
+
+  // 공고 행(제목·지원자 수 포함) 아무 곳이나 누르면 해당 공고의 지원자 관리로 이동
+  jobList.addEventListener('click', e => {
+    const row = e.target.closest('.job');
+    if (row) go('applicants', Number(row.dataset.job));
+  });
+
+  // 지원자 관리 상단 공고 카드: 선택한 공고를 맨 앞에 두고 나머지를 이어서 노출
+  const cards = document.getElementById('cards');
+  function renderCards(selected) {
+    const order = [selected, ...JOBS.map((_, i) => i).filter(i => i !== selected)];
+    cards.innerHTML = order.map((i, pos) => {
+      const j = JOBS[i];
+      const unread = j.counts[1];
+      return `<button class="card${pos === 0 ? ' selected' : ''}" data-log="지원자 관리: 공고 카드 '${j.title}'${pos === 0 ? ' (선택된 공고)' : ''}">
+        <div class="card-top"><span class="badge">진행중</span><span class="link"><img src="assets/link.svg" alt=""></span></div>
+        <div class="card-title">${j.title}</div>
+        <div class="card-meta">${j.period}<span>∙</span>미열람 <span class="n${unread ? '' : ' zero'}">${unread}</span></div>
+      </button>`;
+    }).join('');
+  }
+
+  // ---- 화면 전환 ----
+  // 파일을 data: 주소로 여는 환경에서도 동작하도록 해시 대신 history state를 쓰고, 실패하면 화면만 바꾼다
+  const viewJobs = document.getElementById('view-jobs');
+  const viewApplicants = document.getElementById('view-applicants');
+  const gnbJobs = document.getElementById('gnbJobs');
+  const gnbApplicants = document.getElementById('gnbApplicants');
+
+  function show(view, idx) {
+    const onApplicants = view === 'applicants';
+    viewJobs.hidden = onApplicants;
+    viewApplicants.hidden = !onApplicants;
+    gnbJobs.classList.toggle('active', !onApplicants);
+    gnbApplicants.classList.toggle('active', onApplicants);
+    if (onApplicants) renderCards(idx);
+    document.title = `${onApplicants ? '지원자 목록' : '공고 관리'} · B안 프로토타입`;
+    if (dropdownReady) {
+      setOpen(false);
+      clearSelection();
+    }
+    window.scrollTo(0, 0);
+  }
+  function go(view, idx = 0, replace = false) {
+    try { history[replace ? 'replaceState' : 'pushState']({ view, idx }, ''); } catch (_) {}
+    show(view, idx);
+  }
+  window.addEventListener('popstate', e => {
+    const s = e.state || { view: 'jobs', idx: 0 };
+    show(s.view, s.idx);
+  });
+  gnbJobs.addEventListener('click', () => { if (viewJobs.hidden) go('jobs'); });
+  gnbApplicants.addEventListener('click', () => { if (viewApplicants.hidden) go('applicants', 0); });
+  let dropdownReady = false;
+
+  // ---- 엑셀 저장 흐름 ----
+  const excel = document.getElementById('excel');
+  const excelBtn = document.getElementById('excelBtn');
+  const dropdown = document.getElementById('dropdown');
+  const snackbar = document.getElementById('snackbar');
+  const pctEl = document.getElementById('pct');
+  const done = document.getElementById('done');
+  let saving = false, timer = null, toastTimer = null;
+
+  function setOpen(open) {
+    dropdown.classList.toggle('open', open);
+    excelBtn.setAttribute('aria-expanded', open);
+  }
+
+  excelBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (saving) return;
+    setOpen(!dropdown.classList.contains('open'));
+  });
+
+  dropdown.addEventListener('click', e => {
+    const item = e.target.closest('[data-choice]');
+    if (!item) return;
+    e.stopPropagation();
+    setOpen(false);
+    startSave(item.dataset.choice);
+  });
+
+  document.addEventListener('click', e => {
+    if (!excel.contains(e.target)) setOpen(false);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') setOpen(false);
+  });
+
+  const snackTitle = snackbar.querySelector('.ttl');
+  let saveLabel = '';
+
+  function startSave(choice, label = CHOICE_LABEL[choice], title = '지원자 엑셀 저장 진행 중') {
+    saving = true;
+    saveLabel = label;
+    snackTitle.textContent = title;
+    excel.classList.add('saving');
+    excelBtn.setAttribute('aria-disabled', 'true');
+    snackbar.classList.add('show');
+    let pct = 0;
+    pctEl.textContent = pct;
+    timer = setInterval(() => {
+      pct = Math.min(100, pct + Math.ceil(Math.random() * 9) + 3);
+      pctEl.textContent = pct;
+      if (pct >= 100) {
+        clearInterval(timer);
+        setTimeout(() => finishSave(choice), 350);
+      }
+    }, 160);
+  }
+
+  function stopSave() {
+    clearInterval(timer);
+    saving = false;
+    excel.classList.remove('saving');
+    excelBtn.removeAttribute('aria-disabled');
+    snackbar.classList.remove('show');
+  }
+
+  function finishSave(choice) {
+    stopSave();
+    log(`★ 저장 완료: ${saveLabel}`, true);
+    done.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => done.classList.remove('show'), 3000);
+  }
+
+  document.getElementById('cancelBtn').addEventListener('click', () => {
+    stopSave();
+    log('저장 취소됨');
+  });
+
+  // ---- 지원자 선택 & 하단 액션바 (테스트 서버 A안과 동일 구성) ----
+  const actionbar = document.getElementById('actionbar');
+  const selCount = document.getElementById('selCount');
+  const abRead = document.getElementById('abRead');
+  const abDownload = document.getElementById('abDownload');
+  const abMenu = document.getElementById('abMenu');
+  const headCb = table.querySelector('.thead .cb');
+  const rowEls = [...table.querySelectorAll('.row:not(.thead)')];
+  const selected = new Set();
+
+  function renderSelection() {
+    rowEls.forEach((el, i) => {
+      const on = selected.has(i);
+      el.classList.toggle('selected', on);
+      el.querySelector('.cb').classList.toggle('on', on);
+    });
+    const n = selected.size;
+    headCb.classList.toggle('on', n > 0 && n === rowEls.length);
+    headCb.classList.toggle('mixed', n > 0 && n < rowEls.length);
+    selCount.textContent = `${n}명`;
+    // 미열람 지원자가 선택에 포함될 때만 열람 처리 가능
+    abRead.disabled = ![...selected].some(i => rows[i].unread);
+    actionbar.classList.toggle('show', n > 0);
+    if (!n) abMenu.classList.remove('open');
+  }
+  function clearSelection() {
+    selected.clear();
+    renderSelection();
+  }
+
+  table.addEventListener('click', e => {
+    const cell = e.target.closest('.c-chk');
+    if (!cell) return;
+    if (cell.closest('.thead')) {
+      if (selected.size === rowEls.length) selected.clear();
+      else rowEls.forEach((_, i) => selected.add(i));
+    } else {
+      const i = rowEls.indexOf(cell.closest('.row'));
+      selected.has(i) ? selected.delete(i) : selected.add(i);
+    }
+    renderSelection();
+  });
+
+  abDownload.addEventListener('click', e => {
+    e.stopPropagation();
+    abMenu.classList.toggle('open');
+  });
+  abMenu.addEventListener('click', e => {
+    const item = e.target.closest('[data-dl]');
+    if (!item) return;
+    e.stopPropagation();
+    abMenu.classList.remove('open');
+    if (saving) return;
+    const n = selected.size;
+    if (item.dataset.dl === 'excel') startSave('selected', `선택 지원자 ${n}명 - 지원자 정보 (Excel)`);
+    else startSave('selected', `선택 지원자 ${n}명 - 이력서 (PDF)`, '이력서 PDF 저장 진행 중');
+  });
+  document.addEventListener('click', e => {
+    if (!abMenu.contains(e.target) && !abDownload.contains(e.target)) abMenu.classList.remove('open');
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') abMenu.classList.remove('open');
+  });
+
+  // ---- 진행자 로그 (참가자 화면에는 보이지 않음) ----
+  const CHOICE_LABEL = { current: '현재 공고 지원자', ongoing: '진행중 공고 지원자', closed: '마감 공고 지원자' };
+  const logList = document.getElementById('logList');
+  const facil = document.getElementById('facil');
+  let startedAt = Date.now();
+  let entries = [];
+
+  function log(text, hit = false) {
+    const sec = ((Date.now() - startedAt) / 1000).toFixed(1);
+    entries.push(`${sec}s  ${text}`);
+    const li = document.createElement('li');
+    if (hit) li.className = 'hit';
+    li.innerHTML = `<span class="t">${sec}s</span>`;
+    li.append(text);
+    logList.appendChild(li);
+    logList.scrollTop = logList.scrollHeight;
+  }
+
+  // 캡처 단계에서 모든 클릭 기록 (첫 클릭 관찰용)
+  document.addEventListener('click', e => {
+    if (facil.contains(e.target)) return;
+    const t = e.target.closest('[data-log]');
+    log(t ? t.dataset.log : '빈 영역');
+  }, true);
+
+  document.addEventListener('keydown', e => {
+    if (e.shiftKey && (e.key === 'L' || e.key === 'l')) facil.classList.toggle('show');
+  });
+
+  document.getElementById('copyLog').addEventListener('click', () => {
+    navigator.clipboard?.writeText(entries.join('\n'));
+  });
+  document.getElementById('resetAll').addEventListener('click', () => {
+    stopSave();
+    setOpen(false);
+    done.classList.remove('show');
+    clearSelection();
+    entries = [];
+    logList.innerHTML = '';
+    startedAt = Date.now();
+    facil.classList.remove('show');
+    // 다음 참가자는 공고 관리에서 시작
+    go('jobs', 0, true);
+  });
+
+  dropdownReady = true;
+  go('jobs', 0, true);
+</script>
+</body>
+</html>
