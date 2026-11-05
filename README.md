@@ -1,19 +1,20 @@
-# 엑셀 저장 UT 프로토타입 (A안 / B안)
+# 엑셀 저장 UT 프로토타입 (A안 / B안 / C안)
 
 '전체 지원자 엑셀 저장'과 '현재 공고 지원자 엑셀 저장' 구조를 비교하는 UT용 클릭 프로토타입입니다.
 
 - 안내 페이지: https://kijemi-create.github.io/ut-excel-download/
 - A안 (현재 구조): https://kijemi-create.github.io/ut-excel-download/a.html
 - B안 (드롭다운 통합안): https://kijemi-create.github.io/ut-excel-download/b.html
+- C안 (범위별 분리안): https://kijemi-create.github.io/ut-excel-download/c.html
 
 ## 로컬에서 보기
 
-`A안_프로토타입.html` 또는 `B안_프로토타입.html`을 브라우저로 열면 됩니다. 에셋이 모두 포함된 단일 파일입니다.
+`A안_프로토타입.html`, `B안_프로토타입.html`, `C안_프로토타입.html`을 브라우저로 열면 됩니다. 에셋이 모두 포함된 단일 파일입니다.
 
 ## 수정하기
 
 1. `index.html`(B안 원본)을 수정합니다. 아이콘은 `assets/`에 있습니다.
-2. `python3 build.py`를 실행하면 A안 원본(`index-a.html`), 단일 파일 두 개, 배포본(`docs/a.html`, `docs/b.html`)이 다시 만들어집니다.
+2. `python3 build.py`를 실행하면 A안·C안 원본(`index-a.html`, `index-c.html`), 단일 파일 세 개, 배포본(`docs/a|b|c.html`)이 다시 만들어집니다.
 3. 커밋 후 푸시하면 GitHub Pages에 반영됩니다.
 
 ## 진행자 기능

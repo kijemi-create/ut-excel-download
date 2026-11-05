@@ -204,8 +204,8 @@
   }
   .tb-dl:hover .tb-tip { display: block; }
   .tb-dl.saving .tb-tip { display: none; }
-  .tb-dl.saving .icon-btn { cursor: default; }
-  .tb-dl.saving .icon-btn img { opacity: .3; }
+  .tb-dl.saving button { cursor: default; color: var(--typo-disabled); border-color: var(--border-subtle); }
+  .tb-dl.saving img { opacity: .3; }
 
   /* List */
   .list { margin-top: 16px; }
@@ -513,7 +513,7 @@
         <span class="vsep"></span>
         <div class="tb-end">
           <div class="tb-dl" id="tbDl">
-            <button class="icon-btn" id="tbDlBtn" aria-label="현재 공고 전체 지원자 저장" data-log="[엑셀] 툴바 다운로드 아이콘 (현재 공고)"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJtZWRpYS1maWxlcy9kb3dubG9hZCI+CjxwYXRoIGlkPSJ2ZWN0b3IiIGQ9Ik0xOS40NTg1IDE5Ljg0NTdDMTkuNzg0NCAxOS41Mjc2IDIwLjMwNjIgMTkuNTMzNiAyMC42MjQ1IDE5Ljg1OTRDMjAuOTQyOCAyMC4xODU0IDIwLjkzNjggMjAuNzA4IDIwLjYxMDggMjEuMDI2NEMyMC4wNDQ3IDIxLjU3OTEgMTkuMjgxIDIxLjg4NTcgMTguNDg4NyAyMS44ODU3SDUuMzcwNTdDNC41NzgyOSAyMS44ODU3IDMuODE0NjEgMjEuNTc5MSAzLjI0ODUgMjEuMDI2NEMyLjkyMjUzIDIwLjcwOCAyLjkxNjQ5IDIwLjE4NTQgMy4yMzQ4MyAxOS44NTk0QzMuNTUzMTcgMTkuNTMzNiA0LjA3NDk0IDE5LjUyNzUgNC40MDA4NSAxOS44NDU3QzQuNjU0NzEgMjAuMDkzNiA1LjAwMzMzIDIwLjIzNjMgNS4zNzA1NyAyMC4yMzYzSDE4LjQ4ODdDMTguODU1OSAyMC4yMzYzIDE5LjIwNDYgMjAuMDkzNiAxOS40NTg1IDE5Ljg0NTdaTTExLjEwNTkgMi44MjUyQzExLjEwNTkgMi4zNjk1NiAxMS40NzU1IDIgMTEuOTMxMSAyQzEyLjM4NjYgMi4wMDAxOCAxMi43NTUzIDIuMzY5NjcgMTIuNzU1MyAyLjgyNTJWMTMuMDM3MUwxNi4zNjc2IDkuNjk1MzFDMTYuNzAyMSA5LjM4NTk2IDE3LjIyNDMgOS40MDY3NyAxNy41MzM3IDkuNzQxMjFDMTcuODQzIDEwLjA3NTcgMTcuODIzMSAxMC41OTc4IDE3LjQ4ODcgMTAuOTA3MkwxMi40OTA3IDE1LjUzMDNDMTIuMTc0NSAxNS44MjI0IDExLjY4NjcgMTUuODIyNSAxMS4zNzA2IDE1LjUzMDNMNi4zNzM1IDEwLjkwNzJDNi4wMzkxMyAxMC41OTc5IDYuMDE4NDQgMTAuMDc1NyA2LjMyNzYxIDkuNzQxMjFDNi42MzY5NSA5LjQwNjgzIDcuMTU5MTUgOS4zODYxMyA3LjQ5MzYyIDkuNjk1MzFMMTEuMTA1OSAxMy4wMzcxVjIuODI1MloiIGZpbGw9IiMxMzE2MTgiLz4KPC9nPgo8L3N2Zz4K" alt=""></button>
+            <button class="icon-btn" aria-label="현재 공고 전체 지원자 저장" data-log="[엑셀] 툴바 다운로드 아이콘 (현재 공고)"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJtZWRpYS1maWxlcy9kb3dubG9hZCI+CjxwYXRoIGlkPSJ2ZWN0b3IiIGQ9Ik0xOS40NTg1IDE5Ljg0NTdDMTkuNzg0NCAxOS41Mjc2IDIwLjMwNjIgMTkuNTMzNiAyMC42MjQ1IDE5Ljg1OTRDMjAuOTQyOCAyMC4xODU0IDIwLjkzNjggMjAuNzA4IDIwLjYxMDggMjEuMDI2NEMyMC4wNDQ3IDIxLjU3OTEgMTkuMjgxIDIxLjg4NTcgMTguNDg4NyAyMS44ODU3SDUuMzcwNTdDNC41NzgyOSAyMS44ODU3IDMuODE0NjEgMjEuNTc5MSAzLjI0ODUgMjEuMDI2NEMyLjkyMjUzIDIwLjcwOCAyLjkxNjQ5IDIwLjE4NTQgMy4yMzQ4MyAxOS44NTk0QzMuNTUzMTcgMTkuNTMzNiA0LjA3NDk0IDE5LjUyNzUgNC40MDA4NSAxOS44NDU3QzQuNjU0NzEgMjAuMDkzNiA1LjAwMzMzIDIwLjIzNjMgNS4zNzA1NyAyMC4yMzYzSDE4LjQ4ODdDMTguODU1OSAyMC4yMzYzIDE5LjIwNDYgMjAuMDkzNiAxOS40NTg1IDE5Ljg0NTdaTTExLjEwNTkgMi44MjUyQzExLjEwNTkgMi4zNjk1NiAxMS40NzU1IDIgMTEuOTMxMSAyQzEyLjM4NjYgMi4wMDAxOCAxMi43NTUzIDIuMzY5NjcgMTIuNzU1MyAyLjgyNTJWMTMuMDM3MUwxNi4zNjc2IDkuNjk1MzFDMTYuNzAyMSA5LjM4NTk2IDE3LjIyNDMgOS40MDY3NyAxNy41MzM3IDkuNzQxMjFDMTcuODQzIDEwLjA3NTcgMTcuODIzMSAxMC41OTc4IDE3LjQ4ODcgMTAuOTA3MkwxMi40OTA3IDE1LjUzMDNDMTIuMTc0NSAxNS44MjI0IDExLjY4NjcgMTUuODIyNSAxMS4zNzA2IDE1LjUzMDNMNi4zNzM1IDEwLjkwNzJDNi4wMzkxMyAxMC41OTc5IDYuMDE4NDQgMTAuMDc1NyA2LjMyNzYxIDkuNzQxMjFDNi42MzY5NSA5LjQwNjgzIDcuMTU5MTUgOS4zODYxMyA3LjQ5MzYyIDkuNjk1MzFMMTEuMTA1OSAxMy4wMzcxVjIuODI1MloiIGZpbGw9IiMxMzE2MTgiLz4KPC9nPgo8L3N2Zz4K" alt=""></button>
             <div class="tb-tip" role="tooltip">현재 공고 전체 지원자 저장</div>
           </div>
         <button class="btn radius-md" data-log="채용 단계 편집"><img class="ic16" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJpbnRlcmZhY2UvZWRpdCI+CjxwYXRoIGlkPSJ2ZWN0b3IiIGQ9Ik0xNS41MyAzLjE1OTQ0QzE2LjYwMzkgMi4wODU1IDE4LjM0NTIgMi4wODU1IDE5LjQxOTEgMy4xNTk0NEwyMC44MzQxIDQuNTc0NDRDMjEuOTA3NiA1LjY0Nzk2IDIxLjkwODEgNy4zODgzMyAyMC44MzUyIDguNDYyNDVMOS4yOTgxMyAyMC4wMTIzQzguOTY5ODkgMjAuMzQwOSA4LjUyNDQ4IDIwLjUyNTYgOC4wNjAwMSAyMC41MjU2TDQuOTkwNjYgMjAuNTI1NkM0LjAxMzIyIDIwLjUyNTYgMy4yMjUyNyAxOS43MjQ5IDMuMjQwODkgMTguNzQ3NkwzLjI4MzE1IDE2LjEwMzRDMy4yOTA0MSAxNS42NDkgMy40NzQxNSAxNS4yMTUzIDMuNzk1NDkgMTQuODk0TDE1LjUzIDMuMTU5NDRaTTE4LjM1ODQgNC4yMjAxQzE3Ljg3MDMgMy43MzE5NSAxNy4wNzg4IDMuNzMxOTUgMTYuNTkwNyA0LjIyMDFMMTQuNzg1MiA2LjAyNTU2TDE3Ljk2OSA5LjIwOTMzTDE5Ljc3MzkgNy40MDIzOEMyMC4yNjE2IDYuOTE0MTQgMjAuMjYxNCA2LjEyMzA2IDE5Ljc3MzQgNS42MzUxTDE4LjM1ODQgNC4yMjAxWk0xNi45MDg5IDEwLjI3MDZMMTMuNzI0NiA3LjA4NjIyTDQuODU2MTUgMTUuOTU0NkM0LjgxMDI0IDE2LjAwMDUgNC43ODM5OSAxNi4wNjI1IDQuNzgyOTYgMTYuMTI3NEw0Ljc0MDcgMTguNzcxNkM0LjczODQ2IDE4LjkxMTIgNC44NTEwMyAxOS4wMjU2IDQuOTkwNjYgMTkuMDI1Nkw4LjA2MDAxIDE5LjAyNTZDOC4xMjYzNiAxOS4wMjU2IDguMTg5OTkgMTguOTk5MiA4LjIzNjg5IDE4Ljk1MjJMMTYuOTA4OSAxMC4yNzA2WiIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGZpbGw9IiMxMzE2MTgiLz4KPC9nPgo8L3N2Zz4K" alt="">채용 단계 편집</button>
@@ -831,9 +831,9 @@
     log('저장 취소됨');
   });
 
-  // ---- 툴바 다운로드 아이콘 (A안 전용) ----
+  // ---- 툴바 현재 공고 저장 버튼 ----
   const tbDl = document.getElementById('tbDl');
-  document.getElementById('tbDlBtn').addEventListener('click', () => {
+  tbDl.querySelector('button').addEventListener('click', () => {
     if (saving) return;
     startSave('current', '현재 공고 전체 지원자 (툴바 아이콘)');
   });

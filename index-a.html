@@ -204,8 +204,8 @@
   }
   .tb-dl:hover .tb-tip { display: block; }
   .tb-dl.saving .tb-tip { display: none; }
-  .tb-dl.saving .icon-btn { cursor: default; }
-  .tb-dl.saving .icon-btn img { opacity: .3; }
+  .tb-dl.saving button { cursor: default; color: var(--typo-disabled); border-color: var(--border-subtle); }
+  .tb-dl.saving img { opacity: .3; }
 
   /* List */
   .list { margin-top: 16px; }
@@ -513,7 +513,7 @@
         <span class="vsep"></span>
         <div class="tb-end">
           <div class="tb-dl" id="tbDl">
-            <button class="icon-btn" id="tbDlBtn" aria-label="현재 공고 전체 지원자 저장" data-log="[엑셀] 툴바 다운로드 아이콘 (현재 공고)"><img src="assets/download.svg" alt=""></button>
+            <button class="icon-btn" aria-label="현재 공고 전체 지원자 저장" data-log="[엑셀] 툴바 다운로드 아이콘 (현재 공고)"><img src="assets/download.svg" alt=""></button>
             <div class="tb-tip" role="tooltip">현재 공고 전체 지원자 저장</div>
           </div>
         <button class="btn radius-md" data-log="채용 단계 편집"><img class="ic16" src="assets/edit.svg" alt="">채용 단계 편집</button>
@@ -831,9 +831,9 @@
     log('저장 취소됨');
   });
 
-  // ---- 툴바 다운로드 아이콘 (A안 전용) ----
+  // ---- 툴바 현재 공고 저장 버튼 ----
   const tbDl = document.getElementById('tbDl');
-  document.getElementById('tbDlBtn').addEventListener('click', () => {
+  tbDl.querySelector('button').addEventListener('click', () => {
     if (saving) return;
     startSave('current', '현재 공고 전체 지원자 (툴바 아이콘)');
   });

@@ -1,0 +1,999 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>지원자 목록 · C안 프로토타입</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root {
+    --typo-default: #131618;
+    --typo-secondary: #30363c;
+    --typo-subtle: #6c767f;
+    --typo-disabled: #b8bfc5;
+    --typo-info: #2684ff;
+    --typo-brand: #1b55f6;
+    --gray900: #222;
+    --gray500: #9e9e9e;
+    --fill-default: #fff;
+    --fill-surface: #f4f6f7;
+    --fill-surface-raised: #e2e6e8;
+    --fill-info-subtle: #ebf5ff;
+    --fill-inverse: #30363c;
+    --border-subtle: #e2e6e8;
+    --border-default: #d1d6da;
+    --border-strong: #131618;
+    --shadow-md: 0 0 4px rgba(0,0,0,.04), 0 4px 8px -1px rgba(0,0,0,.08);
+    --shadow-lg: 0 0 6px rgba(0,0,0,.04), 0 8px 16px -1px rgba(0,0,0,.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #fff; }
+  body {
+    font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+    color: var(--typo-default);
+    font-size: 14px;
+    line-height: 20px;
+    min-width: 1440px;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  img { display: block; }
+
+  /* GNB */
+  .gnb-wrap { padding: 10px 10px 0; }
+  .gnb {
+    background: var(--gray900); border-radius: 12px;
+    display: flex; align-items: center; gap: 24px;
+    padding: 12px 12px 12px 25px; height: 60px;
+  }
+  .gnb-left { flex: 1; display: flex; align-items: center; gap: 20px; }
+  .gnb-menus { display: flex; align-items: center; gap: 6px; }
+  .gnb-menu {
+    display: flex; align-items: center; gap: 2px;
+    padding: 6px 12px; border-radius: 6px;
+    color: #fff; font-size: 16px; font-weight: 700; line-height: 24px; white-space: nowrap;
+  }
+  .gnb-menu.has-chev { padding-right: 6px; }
+  .gnb-menu.active { background: #444; }
+  .gnb-menu img.chev { width: 20px; height: 20px; }
+  .gnb-divider { width: 1px; height: 16px; background: #6a6a6a; }
+  .gnb-onepick { gap: 4px; padding-left: 8px; }
+  .gnb-onepick .emoji { width: 20px; height: 20px; padding: 2.2px; }
+  .gnb-right { display: flex; align-items: center; gap: 20px; }
+  .gnb-post {
+    display: flex; align-items: center; gap: 2px;
+    background: #fff; border: 1px solid #e8e8e8; border-radius: 6px;
+    padding: 6px 8px; font-size: 13px; font-weight: 600; line-height: 20px; color: var(--gray900);
+  }
+  .gnb-post .ic { width: 16px; height: 16px; padding: 2.33px; }
+  .gnb-account { gap: 4px; padding-left: 8px; }
+  .gnb-account .me { width: 20px; height: 20px; position: relative; }
+  .gnb-account .me::before { content: ""; position: absolute; inset: 1.67px; border-radius: 50%; background: #6a6a6a; }
+  .gnb-account .me img { position: absolute; inset: 2.5px; width: 15px; height: 15px; }
+
+  .notice {
+    height: 52px; display: flex; align-items: center; gap: 0;
+    padding: 0 20px; border-bottom: 1px solid var(--fill-surface);
+    font-size: 14px; line-height: 22px; color: var(--typo-secondary);
+  }
+  .notice b { font-weight: 700; color: var(--typo-default); margin-right: 16px; }
+
+  /* Contents */
+  .contents { padding: 32px 40px 48px; }
+  .page-heading { display: flex; align-items: center; gap: 24px; padding-bottom: 24px; position: relative; }
+  .page-heading h1 {
+    flex: 1; font-size: 20px; font-weight: 700; line-height: 28px; letter-spacing: -0.5px;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+    height: 40px; min-width: 68px; padding: 8px 16px;
+    background: #fff; border: 1px solid var(--border-default); border-radius: 8px;
+    font-size: 14px; font-weight: 600; line-height: 20px; white-space: nowrap;
+  }
+  .btn:hover { background: #f9fafb; }
+  .btn .ic16 { width: 16px; height: 16px; }
+  .btn.sm {
+    height: 32px; min-width: 64px; padding: 4px 12px;
+    font-size: 13px; font-weight: 500;
+  }
+  .btn.radius-md { border-radius: 10px; }
+  .btn[aria-disabled="true"] { cursor: default; color: var(--typo-disabled); border-color: var(--border-subtle); }
+  .btn[aria-disabled="true"]:hover { background: #fff; }
+  .btn[aria-disabled="true"] img { opacity: .3; }
+
+  /* Excel dropdown */
+  .excel { position: relative; }
+  .dropdown {
+    position: absolute; top: calc(100% + 4px); right: 0; z-index: 20;
+    width: 191px; padding: 8px;
+    background: #fff; border: 1px solid var(--border-subtle); border-radius: 10px;
+    box-shadow: var(--shadow-md);
+    display: none;
+  }
+  .dropdown.open { display: block; }
+  .dd-item {
+    display: block; width: 100%; text-align: left;
+    min-width: 160px; padding: 12px 16px; border-radius: 6px;
+    font-size: 14px; line-height: 20px; color: var(--typo-default);
+  }
+  .dd-item:hover { background: var(--fill-surface); }
+  .dd-sep { height: 1px; background: var(--fill-surface); }
+  .tooltip {
+    position: absolute; bottom: calc(100% + 4px); left: 50%; transform: translateX(-50%);
+    background: var(--fill-inverse); color: #fff; border-radius: 8px;
+    padding: 8px 12px; font-size: 12px; font-weight: 500; line-height: 18px; white-space: nowrap;
+    display: none; z-index: 30;
+  }
+  .excel.saving:hover .tooltip { display: block; }
+
+  /* Posting cards */
+  .postings-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .postings-label { font-size: 15px; font-weight: 600; line-height: 22px; color: var(--typo-secondary); }
+  .postings-label b { color: var(--typo-info); font-weight: 600; margin-left: 2px; }
+  .postings-head .dropdown { width: 168px; }
+  .postings { position: relative; display: flex; align-items: center; gap: 16px; overflow: hidden; }
+  .postings::after {
+    content: ""; position: absolute; right: 0; top: 0; width: 80px; height: 114px;
+    background: linear-gradient(to right, rgba(255,255,255,0), #fff 35%);
+    pointer-events: none;
+  }
+  .all-btn {
+    flex: none; width: 68px; height: 68px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: #fff; border: 1px solid var(--border-subtle); border-radius: 16px;
+    font-size: 12px; font-weight: 500; line-height: 18px;
+  }
+  .all-btn img { width: 24px; height: 24px; }
+  .cards { display: flex; gap: 12px; padding: 2px 0 4px; }
+  .card {
+    flex: none; width: 280px; padding: 16px;
+    display: flex; flex-direction: column; gap: 8px; text-align: left;
+    background: #fff; border: 1px solid var(--border-subtle); border-radius: 10px;
+  }
+  .card.selected { border-color: var(--border-strong); box-shadow: var(--shadow-lg); }
+  .card-top { display: flex; align-items: center; justify-content: space-between; }
+  .badge {
+    height: 24px; padding: 2px 8px; border-radius: 4px;
+    background: var(--fill-info-subtle); color: var(--typo-info);
+    font-size: 12px; font-weight: 500; line-height: 18px; display: inline-flex; align-items: center;
+  }
+  .badge.closed { background: var(--fill-surface); color: var(--typo-subtle); }
+  .card-top .link { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+  .card-top .link img { width: 16px; height: 16px; }
+  .card-title {
+    font-size: 14px; font-weight: 600; line-height: 20px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .card-meta { display: flex; gap: 2px; align-items: center; font-size: 14px; line-height: 20px; color: var(--typo-subtle); white-space: nowrap; }
+  .card-meta .n { font-weight: 600; color: var(--typo-info); }
+  .card-meta .n.zero { color: var(--typo-disabled); }
+
+  /* Position tab + filter */
+  .tab-filter { margin-top: 24px; display: flex; flex-direction: column; gap: 16px; }
+  .linetab { position: relative; display: flex; gap: 8px; }
+  .linetab::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--fill-surface); }
+  .linetab button {
+    padding: 12px 4px; font-size: 15px; font-weight: 600; line-height: 22px; color: var(--typo-subtle);
+    position: relative; z-index: 1;
+  }
+  .linetab button.on { color: var(--typo-default); border-bottom: 2px solid var(--border-strong); padding-bottom: 10px; }
+
+  .filter { display: flex; align-items: center; justify-content: space-between; }
+  .segment { display: flex; gap: 4px; padding: 4px; background: var(--fill-surface); border-radius: 8px; }
+  .segment button {
+    height: 32px; min-width: 32px; display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; color: var(--typo-subtle);
+  }
+  .segment button.on { background: #fff; box-shadow: 0 1px 1px rgba(0,0,0,.08), 0 0 1.5px rgba(0,0,0,.02); }
+  .segment button img { width: 20px; height: 20px; }
+  .filter-right { display: flex; align-items: center; gap: 16px; }
+  .check { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; line-height: 20px; color: var(--typo-secondary); }
+  .check .box { width: 20px; height: 20px; border: 1px solid var(--border-default); border-radius: 4px; background: #fff; }
+  .icon-btns { display: flex; gap: 8px; }
+  .icon-btn {
+    width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+    background: #fff; border: 1px solid var(--border-subtle); border-radius: 10px;
+  }
+  .icon-btn:hover { background: #f9fafb; }
+  .icon-btn img { width: 20px; height: 20px; }
+  .vsep { width: 1px; height: 20px; background: var(--fill-surface-raised); }
+  .tb-end { display: flex; align-items: center; gap: 8px; }
+  .tb-dl { position: relative; }
+  .tb-tip {
+    position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+    background: var(--fill-inverse); color: #fff; border-radius: 8px;
+    padding: 8px 12px; font-size: 12px; font-weight: 500; line-height: 18px; white-space: nowrap;
+    display: none; z-index: 30; pointer-events: none;
+  }
+  .tb-dl:hover .tb-tip { display: block; }
+  .tb-dl.saving .tb-tip { display: none; }
+  .tb-dl.saving button { cursor: default; color: var(--typo-disabled); border-color: var(--border-subtle); }
+  .tb-dl.saving img { opacity: .3; }
+
+  /* List */
+  .list { margin-top: 16px; }
+  .stage { display: inline-flex; gap: 4px; padding: 4px; background: var(--fill-surface); border-radius: 8px; }
+  .stage button {
+    height: 32px; padding: 6px 12px; border-radius: 8px;
+    font-size: 13px; line-height: 20px; color: var(--typo-disabled);
+  }
+  .stage button.on { background: #fff; color: var(--typo-default); font-weight: 500; box-shadow: 0 1px 1px rgba(0,0,0,.08), 0 0 1.5px rgba(0,0,0,.02); }
+  .stage button .n { color: var(--typo-disabled); margin-left: 2px; }
+  .stage button.on .n { color: var(--typo-info); }
+
+  .table { margin-top: 12px; }
+  .row { display: flex; align-items: stretch; background: #fff; }
+  .row + .row { border-top: 1px solid var(--fill-surface); }
+  .thead { background: var(--fill-surface); border-radius: 8px 8px 0 0; }
+  .thead .cell { padding-top: 10px; padding-bottom: 10px; font-size: 14px; font-weight: 500; line-height: 20px; color: var(--typo-secondary); }
+  .cell { display: flex; flex-direction: column; justify-content: center; padding: 20px 16px; min-width: 0; }
+  .c-chk { padding: 20px; flex: none; }
+  .thead .c-chk { padding-top: 10px; padding-bottom: 10px; }
+  .c-pos { width: 158px; flex: none; font-size: 15px; font-weight: 600; line-height: 22px; }
+  .c-name { width: 272px; flex: none; }
+  .c-edu, .c-car, .c-int { flex: 1; }
+  .c-date { width: 150px; flex: none; gap: 4px; }
+  .cb { width: 20px; height: 20px; border: 1px solid var(--border-default); border-radius: 4px; background: #fff; position: relative; }
+  .c-chk { cursor: pointer; }
+  .cb.on, .cb.mixed { background: var(--typo-brand); border-color: var(--typo-brand); }
+  .cb.on::after {
+    content: ""; position: absolute; left: 6px; top: 2px; width: 5px; height: 10px;
+    border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+  }
+  .cb.mixed::after { content: ""; position: absolute; left: 4px; right: 4px; top: 8px; height: 2px; border-radius: 1px; background: #fff; }
+  .row.selected { background: rgba(240,245,255,.4); }
+  .row:not(.thead):hover { background: rgba(240,245,255,1); }
+
+  /* 하단 액션바 */
+  .actionbar { position: fixed; left: 0; right: 0; bottom: 24px; z-index: 40; display: none; justify-content: center; pointer-events: none; }
+  .actionbar.show { display: flex; }
+  .ab-inner {
+    pointer-events: auto; display: flex; align-items: center; gap: 40px;
+    padding: 8px 16px; border-radius: 10px; background: var(--fill-inverse);
+    box-shadow: 0 16px 16px rgba(0,0,0,.1), 0 0 4px rgba(0,0,0,.04);
+  }
+  .ab-count { display: flex; gap: 4px; padding: 2px; font-size: 14px; line-height: 20px; color: #fff; white-space: nowrap; }
+  .ab-count b { font-weight: 600; color: var(--typo-info); }
+  .ab-btns { display: flex; align-items: center; gap: 16px; }
+  .ab-btn {
+    width: 48px; display: flex; flex-direction: column; align-items: center;
+    color: #fff; font-size: 12px; font-weight: 500; line-height: 18px; white-space: nowrap;
+  }
+  .ab-ic { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 10px; transition: background-color .15s; }
+  .ab-ic svg { width: 20px; height: 20px; }
+  .ab-btn:hover .ab-ic { background: rgba(255,255,255,.08); }
+  .ab-btn:disabled { color: var(--typo-disabled); cursor: not-allowed; }
+  .ab-btn:disabled .ab-ic { background: transparent; }
+  .ab-sep { width: 1px; height: 20px; background: var(--fill-surface-raised); }
+  .ab-dl { position: relative; }
+  .ab-dl .ab-btn { width: auto; min-width: 48px; }
+  .ab-menu {
+    position: absolute; bottom: calc(100% + 18px); left: 50%; transform: translateX(-50%);
+    width: 168px; padding: 8px; display: none;
+    background: #fff; border: 1px solid var(--border-subtle); border-radius: 10px; box-shadow: var(--shadow-md);
+  }
+  .ab-menu.open { display: block; }
+  .th-info { display: inline-flex; align-items: center; gap: 4px; }
+  .th-info img { width: 16px; height: 16px; }
+
+  .person { display: flex; gap: 12px; align-items: flex-start; }
+  .person > img { width: 40px; height: 40px; }
+  .person-info { display: flex; flex-direction: column; gap: 8px; }
+  .name-line { display: flex; gap: 8px; align-items: center; }
+  .name { display: flex; gap: 4px; align-items: center; font-size: 16px; font-weight: 600; line-height: 24px; }
+  .name img { width: 16px; height: 16px; margin: 2px; }
+  .unread { display: flex; gap: 4px; align-items: center; color: var(--typo-info); font-size: 13px; font-weight: 500; }
+  .unread::before { content: ""; width: 4px; height: 4px; border-radius: 50%; background: var(--typo-info); }
+  .age { font-size: 13px; line-height: 20px; color: var(--typo-subtle); }
+  .chip {
+    align-self: flex-start; height: 20px; padding: 0 4px; border-radius: 4px;
+    background: var(--fill-surface); border: 1px solid var(--border-subtle);
+    font-size: 12px; font-weight: 500; line-height: 18px; color: var(--typo-secondary);
+  }
+  .c-edu, .c-car { gap: 2px; white-space: nowrap; }
+  .t1 { font-size: 15px; font-weight: 600; line-height: 22px; color: var(--gray900); }
+  .t2 { font-size: 14px; line-height: 22px; color: var(--gray900); overflow: hidden; text-overflow: ellipsis; }
+  .t3 { font-size: 14px; line-height: 22px; color: var(--gray500); overflow: hidden; text-overflow: ellipsis; }
+  .int-date { font-size: 15px; font-weight: 600; line-height: 22px; color: var(--gray900); }
+
+  .pagination { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 16px; }
+  .pagination button { width: 32px; height: 32px; border-radius: 8px; font-size: 14px; color: var(--typo-subtle); }
+  .pagination button.on { background: var(--fill-surface); color: var(--typo-default); font-weight: 600; }
+  .pagination .arrow { color: var(--typo-disabled); font-size: 16px; }
+
+  /* 화면 전환 */
+  .view[hidden] { display: none; }
+
+  /* 공고 관리 (테스트 서버 화면 참고) */
+  .btn.primary { background: var(--typo-brand); border-color: var(--typo-brand); color: #fff; border-radius: 10px; padding: 0 16px; }
+  .btn.primary:hover { background: #1647d6; }
+  .btn.primary svg { width: 16px; height: 16px; }
+  .jobs-tabs { margin-top: 0; }
+  .jobs-tabs button { font-size: 15px; }
+  .jobs-tabs button.on { border-bottom-color: var(--border-strong); }
+  .jobs-bar { display: flex; align-items: center; justify-content: space-between; margin-top: 24px; }
+  .jobs-total { font-size: 13px; line-height: 20px; color: var(--typo-subtle); }
+  .jobs-table { margin-top: 12px; }
+  .jobs-grid { display: grid; grid-template-columns: 80px minmax(0, 1fr) repeat(5, 92px); }
+  .jobs-head {
+    background: var(--fill-surface); border-radius: 8px 8px 0 0;
+    font-size: 13px; line-height: 20px; color: var(--typo-subtle);
+  }
+  .jobs-head > span { padding: 8px 16px; white-space: nowrap; }
+  .job { border-bottom: 1px solid var(--border-subtle); cursor: pointer; transition: background-color .15s; }
+  .job:hover { background: #f9fafb; }
+  .job .jobs-grid { min-height: 88px; }
+  .job .cell-x { display: flex; align-items: center; padding: 0 16px; }
+  .job .info { display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 20px 16px; min-width: 0; }
+  .badge.success { background: #eefff6; color: #02b160; height: 22px; padding: 2px 6px; }
+  .job-title {
+    font-size: 16px; font-weight: 600; line-height: 24px; text-align: left;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .job:hover .job-title { text-decoration: underline; }
+  .job-meta {
+    display: flex; align-items: center; gap: 12px; overflow: hidden; white-space: nowrap;
+    font-size: 13px; line-height: 20px; color: var(--typo-secondary);
+  }
+  .job-meta .m { font-weight: 500; display: flex; gap: 4px; }
+  .job-meta .m em { font-style: normal; font-weight: 400; color: var(--typo-subtle); }
+  .job-meta .s { color: var(--typo-subtle); }
+  .job-meta i { width: 1px; height: 8px; background: var(--fill-surface-raised); flex: none; }
+  .job .num { font-size: 16px; line-height: 24px; color: var(--typo-subtle); border-radius: 8px; }
+  .job .num:hover { text-decoration: underline; }
+  .job-extra { padding: 0 16px 12px 96px; }
+  .job-strip {
+    height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 8px 12px 8px 16px; border-radius: 8px; background: var(--fill-surface);
+  }
+  .job-strip .l { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 14px; font-weight: 500; line-height: 20px; color: var(--typo-secondary); white-space: nowrap; }
+  .job-strip .l svg { width: 16px; height: 16px; flex: none; }
+  .job-strip .l .ic-jump { color: var(--typo-brand); }
+  .job-strip .l .ic-smart { width: 14px; height: 14px; border-radius: 50%; background: var(--typo-info); flex: none; }
+  .job-strip .l i { width: 1px; height: 12px; background: #d1d6da; }
+  .job-strip .l b { font-weight: 700; color: var(--typo-default); }
+  .job-strip .r { display: flex; align-items: center; gap: 4px; font-size: 13px; line-height: 20px; color: var(--typo-secondary); white-space: nowrap; }
+  .job-strip .more { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: var(--typo-subtle); }
+  .job-strip .more svg { width: 16px; height: 16px; }
+  .jobs-pager { display: flex; align-items: center; justify-content: space-between; margin-top: 24px; }
+  .jobs-pager .pagination { margin-top: 0; flex: 1; }
+  .jobs-pager .per { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--typo-secondary); }
+  .jobs-pager .per span:first-child { border: 1px solid var(--border-default); border-radius: 6px; padding: 2px 8px; }
+  .jobs-notes {
+    margin-top: 56px; padding: 16px 20px; border-radius: 8px; background: var(--fill-surface);
+    list-style: none; font-size: 12px; line-height: 20px; color: var(--typo-subtle);
+  }
+  .jobs-notes li::before { content: "· "; }
+
+  /* Progress snackbar */
+  .snackbar {
+    position: fixed; top: 94px; right: 30px; z-index: 50;
+    width: 420px; padding: 16px;
+    background: #fff; border: 1px solid var(--border-subtle); border-radius: 10px;
+    box-shadow: var(--shadow-lg);
+    display: none; align-items: center; gap: 12px;
+  }
+  .snackbar.show { display: flex; }
+  .snackbar .spin { width: 24px; height: 24px; animation: spin 1s linear infinite; align-self: flex-start; }
+  .snackbar .txt { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .snackbar .ttl { font-size: 14px; font-weight: 600; line-height: 20px; color: var(--typo-brand); }
+  .snackbar .pct { font-size: 13px; line-height: 20px; color: var(--typo-subtle); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* 전체 공고 저장 확인 */
+  .confirm-dim { position: fixed; inset: 0; z-index: 70; background: rgba(19,22,24,.4); display: none; align-items: center; justify-content: center; }
+  .confirm-dim.show { display: flex; }
+  .confirm { width: 400px; padding: 28px 24px 20px; border-radius: 16px; background: #fff; box-shadow: var(--shadow-lg); }
+  .confirm-msg { font-size: 17px; font-weight: 700; line-height: 26px; }
+  .confirm-sub { margin-top: 8px; font-size: 14px; line-height: 20px; color: var(--typo-subtle); }
+  .confirm-btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; }
+
+  /* Done toast */
+  .toast {
+    position: fixed; left: 50%; bottom: 40px; z-index: 60;
+    transform: translate(-50%, 16px); opacity: 0; pointer-events: none;
+    transition: opacity .2s, transform .2s;
+    background: var(--fill-inverse); color: #fff; border-radius: 10px;
+    padding: 12px 20px; box-shadow: var(--shadow-lg);
+    font-size: 14px; font-weight: 500; line-height: 20px; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  /* 진행자 패널: Shift+L 로 열고 닫음 */
+  .facil {
+    position: fixed; left: 16px; bottom: 16px; z-index: 100; width: 360px; max-height: 60vh;
+    background: #131618; color: #e2e6e8; border-radius: 12px; padding: 14px;
+    font-size: 12px; line-height: 18px; display: none; flex-direction: column; gap: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.3);
+  }
+  .facil.show { display: flex; }
+  .facil header { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 13px; }
+  .facil ol { overflow: auto; padding-left: 20px; flex: 1; }
+  .facil li { padding: 2px 0; }
+  .facil li .t { color: #8b949b; margin-right: 6px; }
+  .facil li.hit { color: #7cc4ff; }
+  .facil .acts { display: flex; gap: 6px; }
+  .facil .acts button { background: #30363c; color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 12px; }
+  .facil .hint { color: #8b949b; }
+</style>
+</head>
+<body>
+
+<div class="gnb-wrap">
+  <nav class="gnb">
+    <div class="gnb-left">
+      <img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjEwOSIgaGVpZ2h0PSIxOCIgdmlld0JveD0iMCAwIDEwOSAxOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgaWQ9Il8mIzIzNTsmIzE2MDsmIzEzNjsmIzIzNjsmIzE1NzsmIzE4MDsmIzIzNjsmIzE1MDsmIzE4MDtfMSIgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzBfMTYwNykiPgo8cGF0aCBpZD0iVmVjdG9yIiBkPSJNMjIuMjg5MSAwSDE5Ljk0N0MxNy4yMDcgMCAxNC45ODYxIDIuMjIyNzMgMTQuOTg2MSA0Ljk2NVYxMy4wMzY0QzE0Ljk4NjEgMTUuNzc4NiAxNy4yMDcgMTguMDAxNCAxOS45NDcgMTguMDAxNEgyMi4yODkxQzI1LjAyOTEgMTguMDAxNCAyNy4yNSAxNS43Nzg2IDI3LjI1IDEzLjAzNjRWNC45NjVDMjcuMjUgMi4yMjI3MyAyNS4wMjkxIDAgMjIuMjg5MSAwWk0yMy40MzUgMTMuMDMyM0MyMy40MzUgMTQuMTE5MSAyMi41NTQ4IDE1IDIxLjQ2ODkgMTVIMjAuNzY4NkMxOS42ODI3IDE1IDE4LjgwMjUgMTQuMTE5MSAxOC44MDI1IDEzLjAzMjNWNC45Njc3M0MxOC44MDI1IDMuODgwOTEgMTkuNjgyNyAzIDIwLjc2ODYgM0gyMS40Njg5QzIyLjU1NDggMyAyMy40MzUgMy44ODA5MSAyMy40MzUgNC45Njc3M1YxMy4wMzIzWiIgZmlsbD0id2hpdGUiLz4KPHBhdGggaWQ9IlZlY3Rvcl8yIiBkPSJNNjIuODkzIDBINjAuMjc3QzU3LjUzODQgMCA1NS4zMTc1IDIuMjIyNzMgNTUuMzE3NSA0Ljk2MzY0VjEzLjAzNjRDNTUuMzE3NSAxNS43NzczIDU3LjUzODQgMTggNjAuMjc3IDE4SDYyLjg5M0M2NS42MzE2IDE4IDY3Ljg1MjUgMTUuNzc3MyA2Ny44NTI1IDEzLjAzNjRWNC45NjM2NEM2Ny44NTI1IDIuMjIyNzMgNjUuNjMxNiAwIDYyLjg5MyAwWk02NC4wMzc1IDEzLjAzNjRDNjQuMDM3NSAxNC4xMjE4IDYzLjE1ODcgMTUuMDAxNCA2Mi4wNzQxIDE1LjAwMTRINjEuMDk0NUM2MC4wMSAxNS4wMDE0IDU5LjEzMTEgMTQuMTIxOCA1OS4xMzExIDEzLjAzNjRWNC45NjVDNTkuMTMxMSAzLjg3OTU1IDYwLjAxIDMgNjEuMDk0NSAzSDYyLjA3NDFDNjMuMTU4NyAzIDY0LjAzNzUgMy44Nzk1NSA2NC4wMzc1IDQuOTY1VjEzLjAzNjRaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBpZD0iVmVjdG9yXzMiIGQ9Ik05NC4wMTI1IDMuODE4MThWMC41NDU0NTVIODYuOTI3NUg4My4xMTI1VjMuODE4MThWNy4wOTA5MVYxMC4zNjM2VjE0LjE4MThWMTcuNDU0NUg4Ni45Mjc1SDk0LjAxMjVWMTQuMTgxOEg4Ni45Mjc1VjEwLjM2MzZIOTMuNDM4OVY3LjA5MDkxSDg2LjkyNzVWMy44MTgxOEg5NC4wMTI1WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggaWQ9IlZlY3Rvcl80IiBkPSJNMzguNDcxNSA4LjU3NDU1QzM5LjU3NzkgNy45NzQ1NSA0MC4zMyA2LjgwMzE4IDQwLjMzIDUuNDU0NTVWNC4zNjM2NEM0MC4zMyAyLjI1NTQ1IDM4LjYyMTQgMC41NDU0NTUgMzYuNTE1IDAuNTQ1NDU1SDI4Ljg4NVYxNy40NTQ1SDM2Ljc4NzVDMzkuMDQ1MiAxNy40NTQ1IDQwLjg3NSAxNS42MjMyIDQwLjg3NSAxMy4zNjM2VjExLjcyNzNDNDAuODc1IDEwLjIyMDUgMzkuODU1OCA4Ljk1NSAzOC40NzE1IDguNTc0NTVaTTMyLjcgMy4yNzI3M0gzNS4xNTI1QzM1LjkwNDYgMy4yNzI3MyAzNi41MTUgMy44ODM2NCAzNi41MTUgNC42MzYzNlY1LjQ3MzY0QzM2LjUxNSA2LjAzNTQ1IDM2LjE3MDMgNi41NCAzNS42NDg1IDYuNzQzMThMMzIuNyA3Ljg5NTQ1VjMuMjcyNzNaTTM3LjA2IDEzLjM2MzZDMzcuMDYgMTQuMTE2NCAzNi40NDk2IDE0LjcyNzMgMzUuNjk3NSAxNC43MjczSDMyLjdWMTAuOTM5MUwzNS4yMDk3IDkuOTc3NzNDMzYuMTAyMiA5LjYzNTQ1IDM3LjA2IDEwLjI5NTUgMzcuMDYgMTEuMjUxNFYxMy4zNjM2WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggaWQ9IlZlY3Rvcl81IiBkPSJNNTUuMzE3NSAwLjU0NTQ1NUg1MS41MDI1TDQ2LjMyNSA3Ljg0NjM2VjAuNTQ1NDU1SDQyLjUxVjE3LjQ1NDVINDYuMzI1VjEwLjE1MjNMNTEuNTAyNSAxNy40NTQ1SDU1LjMxNzVMNDkuNTk1IDlMNTUuMzE3NSAwLjU0NTQ1NVoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGlkPSJWZWN0b3JfNiIgZD0iTTE0LjE3IDAuNTQ1NDU1SDQuOTA1VjMuODIyMjdIOC4xNzVWMTQuNzI0NUgzLjgxNVYxMC45NzA1SDBWMTMuMDg1NUMwIDE1LjgwMDUgMi4xOTYzNSAxOCA0LjkwNSAxOEg3LjA4NUM5Ljc5MzY1IDE4IDExLjk5IDE1Ljc5OTEgMTEuOTkgMTMuMDg1NVYzLjgyMjI3SDE0LjE3VjAuNTQ1NDU1WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggaWQ9IlZlY3Rvcl83IiBkPSJNMTA1LjQ1OCAxNy40NTQ1SDEwOUwxMDUuMTg1IDAuNTQ1NDU1SDk4LjkxNzVMOTUuMTAyNSAxNy40NTQ1SDk4LjY0NUw5OS42MzAxIDEzLjA5MDlIMTA0LjQ3NEwxMDUuNDU5IDE3LjQ1NDVIMTA1LjQ1OFpNMTAwLjM2OSA5LjgxODE4TDEwMS43MjMgMy44MTgxOEgxMDIuMzgyTDEwMy43MzcgOS44MTgxOEgxMDAuMzdIMTAwLjM2OVoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGlkPSJWZWN0b3JfOCIgZD0iTTc5LjQwNzkgMTAuOTExOEM3OS4yMjY3IDEwLjQ1NzcgNzguOTIyOCAxMC4wOCA3OC41NDgxIDkuNzk5MDlDNzkuOTg4MyA5LjIxNTQ1IDgwLjkzMjUgNy44MTYzNiA4MC45MzI1IDYuMjYwNDVWNC4zNjM2NEM4MC45MzI1IDIuMjU1NDUgNzkuMjIzOSAwLjU0NTQ1NSA3Ny4xMTc1IDAuNTQ1NDU1SDY5LjQ4NzVWMTcuNDU0NUg3My4zMDI1VjExLjg4ODJMNzUuNjE0NyAxMC45Njc3TDc4LjIwNzUgMTcuNDU0NUg4Mi4wMjI1TDc5LjQwNzkgMTAuOTExOFpNNzcuMzkgNi4zMTM2NEM3Ny4zOSA2Ljg4MDkxIDc3LjAzODUgNy4zODk1NSA3Ni41MDg1IDcuNTlMNzMuMzAyNSA4Ljc5ODE4VjMuMjcyNzNINzYuMDI3NUM3Ni43Nzk2IDMuMjcyNzMgNzcuMzkgMy44ODM2NCA3Ny4zOSA0LjYzNjM2VjYuMzEzNjRaIiBmaWxsPSJ3aGl0ZSIvPgo8L2c+CjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzBfMTYwNyI+CjxyZWN0IHdpZHRoPSIxMDkiIGhlaWdodD0iMTgiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==" width="109" height="18" alt="JOBKOREA" data-log="GNB 로고">
+      <div class="gnb-menus">
+        <button class="gnb-menu" data-log="GNB 기업 홈">기업 홈</button>
+        <button class="gnb-menu" id="gnbJobs" data-log="GNB 공고 관리">공고 관리</button>
+        <button class="gnb-menu has-chev" id="gnbApplicants" data-log="GNB 지원자 관리">지원자 관리<img class="chev" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJzeXN0ZW1fY2hldnJvbl9kb3duIj4KPHBhdGggaWQ9ImtleWJvYXJkX2Fycm93X2Rvd24iIGQ9Ik05LjcxOTU4IDEyLjE4MjdDOS42MzMwNiAxMi4xNTA2IDkuNTUwNzcgMTIuMDk1NiA5LjQ3MjcxIDEyLjAxNzdMNS43Mjc1IDguMjcyNTFDNS42MTIyMiA4LjE1NzA5IDUuNTUzMiA4LjAxMjAyIDUuNTUwNDIgNy44MzczQzUuNTQ3NzggNy42NjI3MiA1LjYwNjgxIDcuNTE1MDEgNS43Mjc1IDcuMzk0MThDNS44NDgzMyA3LjI3MzQ4IDUuOTk0NzIgNy4yMTMxMyA2LjE2NjY3IDcuMjEzMTNDNi4zMzg2MSA3LjIxMzEzIDYuNDg1IDcuMjczNDggNi42MDU4MyA3LjM5NDE4TDEwIDEwLjc4ODZMMTMuMzk0MiA3LjM5NDE4QzEzLjUwOTYgNy4yNzg5IDEzLjY1NDcgNy4yMTk4NyAxMy44Mjk0IDcuMjE3MDlDMTQuMDA0IDcuMjE0NDUgMTQuMTUxNyA3LjI3MzQ4IDE0LjI3MjUgNy4zOTQxOEMxNC4zOTMyIDcuNTE1MDEgMTQuNDUzNSA3LjY2MTQgMTQuNDUzNSA3LjgzMzM0QzE0LjQ1MzUgOC4wMDUyOSAxNC4zOTMyIDguMTUxNjggMTQuMjcyNSA4LjI3MjUxTDEwLjUyNzMgMTIuMDE3N0MxMC40NDkyIDEyLjA5NTYgMTAuMzY2OSAxMi4xNTA2IDEwLjI4MDQgMTIuMTgyN0MxMC4xOTM5IDEyLjIxNDggMTAuMTAwNCAxMi4yMzA4IDEwIDEyLjIzMDhDOS44OTk1OCAxMi4yMzA4IDkuODA2MTEgMTIuMjE0OCA5LjcxOTU4IDEyLjE4MjdaIiBmaWxsPSJ3aGl0ZSIvPgo8L2c+Cjwvc3ZnPgo=" alt=""></button>
+        <button class="gnb-menu has-chev" data-log="GNB 인재풀">인재풀<img class="chev" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJzeXN0ZW1fY2hldnJvbl9kb3duIj4KPHBhdGggaWQ9ImtleWJvYXJkX2Fycm93X2Rvd24iIGQ9Ik05LjcxOTU4IDEyLjE4MjdDOS42MzMwNiAxMi4xNTA2IDkuNTUwNzcgMTIuMDk1NiA5LjQ3MjcxIDEyLjAxNzdMNS43Mjc1IDguMjcyNTFDNS42MTIyMiA4LjE1NzA5IDUuNTUzMiA4LjAxMjAyIDUuNTUwNDIgNy44MzczQzUuNTQ3NzggNy42NjI3MiA1LjYwNjgxIDcuNTE1MDEgNS43Mjc1IDcuMzk0MThDNS44NDgzMyA3LjI3MzQ4IDUuOTk0NzIgNy4yMTMxMyA2LjE2NjY3IDcuMjEzMTNDNi4zMzg2MSA3LjIxMzEzIDYuNDg1IDcuMjczNDggNi42MDU4MyA3LjM5NDE4TDEwIDEwLjc4ODZMMTMuMzk0MiA3LjM5NDE4QzEzLjUwOTYgNy4yNzg5IDEzLjY1NDcgNy4yMTk4NyAxMy44Mjk0IDcuMjE3MDlDMTQuMDA0IDcuMjE0NDUgMTQuMTUxNyA3LjI3MzQ4IDE0LjI3MjUgNy4zOTQxOEMxNC4zOTMyIDcuNTE1MDEgMTQuNDUzNSA3LjY2MTQgMTQuNDUzNSA3LjgzMzM0QzE0LjQ1MzUgOC4wMDUyOSAxNC4zOTMyIDguMTUxNjggMTQuMjcyNSA4LjI3MjUxTDEwLjUyNzMgMTIuMDE3N0MxMC40NDkyIDEyLjA5NTYgMTAuMzY2OSAxMi4xNTA2IDEwLjI4MDQgMTIuMTgyN0MxMC4xOTM5IDEyLjIxNDggMTAuMTAwNCAxMi4yMzA4IDEwIDEyLjIzMDhDOS44OTk1OCAxMi4yMzA4IDkuODA2MTEgMTIuMjE0OCA5LjcxOTU4IDEyLjE4MjdaIiBmaWxsPSJ3aGl0ZSIvPgo8L2c+Cjwvc3ZnPgo=" alt=""></button>
+        <span class="gnb-divider"></span>
+        <button class="gnb-menu has-chev gnb-onepick" data-log="GNB 원픽"><img class="emoji" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE1LjYyNSIgaGVpZ2h0PSIxNS42MjUiIHZpZXdCb3g9IjAgMCAxNS42MjUgMTUuNjI1IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZyBpZD0iR3JvdXAgMTk0ODc1NzcyMiI+CjxwYXRoIGlkPSJWZWN0b3IiIGQ9Ik03LjgxMjUgMTUuNjI1QzEyLjEyNzIgMTUuNjI1IDE1LjYyNSAxMi4xMjcyIDE1LjYyNSA3LjgxMjVDMTUuNjI1IDMuNDk3NzggMTIuMTI3MiAwIDcuODEyNSAwQzMuNDk3NzggMCAwIDMuNDk3NzggMCA3LjgxMjVDMCAxMi4xMjcyIDMuNDk3NzggMTUuNjI1IDcuODEyNSAxNS42MjVaIiBmaWxsPSIjN0NERTY4Ii8+CjxwYXRoIGlkPSJWZWN0b3JfMiIgZD0iTTEyLjUxMzIgMS41NzEyMkw3LjAzMDU0IDguNzUwMDVMNC43NjgzOCA1Ljc4MzAyTDMuMTkwMjYgNy44MTZMNy4wMTgzNyAxMi44MzY4TDE1LjYyNDMgMS41NzEyMkgxMi41MTMyWiIgZmlsbD0iIzAwM0VDQiIvPgo8L2c+Cjwvc3ZnPgo=" alt="">원픽<img class="chev" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJzeXN0ZW1fY2hldnJvbl9kb3duIj4KPHBhdGggaWQ9ImtleWJvYXJkX2Fycm93X2Rvd24iIGQ9Ik05LjcxOTU4IDEyLjE4MjdDOS42MzMwNiAxMi4xNTA2IDkuNTUwNzcgMTIuMDk1NiA5LjQ3MjcxIDEyLjAxNzdMNS43Mjc1IDguMjcyNTFDNS42MTIyMiA4LjE1NzA5IDUuNTUzMiA4LjAxMjAyIDUuNTUwNDIgNy44MzczQzUuNTQ3NzggNy42NjI3MiA1LjYwNjgxIDcuNTE1MDEgNS43Mjc1IDcuMzk0MThDNS44NDgzMyA3LjI3MzQ4IDUuOTk0NzIgNy4yMTMxMyA2LjE2NjY3IDcuMjEzMTNDNi4zMzg2MSA3LjIxMzEzIDYuNDg1IDcuMjczNDggNi42MDU4MyA3LjM5NDE4TDEwIDEwLjc4ODZMMTMuMzk0MiA3LjM5NDE4QzEzLjUwOTYgNy4yNzg5IDEzLjY1NDcgNy4yMTk4NyAxMy44Mjk0IDcuMjE3MDlDMTQuMDA0IDcuMjE0NDUgMTQuMTUxNyA3LjI3MzQ4IDE0LjI3MjUgNy4zOTQxOEMxNC4zOTMyIDcuNTE1MDEgMTQuNDUzNSA3LjY2MTQgMTQuNDUzNSA3LjgzMzM0QzE0LjQ1MzUgOC4wMDUyOSAxNC4zOTMyIDguMTUxNjggMTQuMjcyNSA4LjI3MjUxTDEwLjUyNzMgMTIuMDE3N0MxMC40NDkyIDEyLjA5NTYgMTAuMzY2OSAxMi4xNTA2IDEwLjI4MDQgMTIuMTgyN0MxMC4xOTM5IDEyLjIxNDggMTAuMTAwNCAxMi4yMzA4IDEwIDEyLjIzMDhDOS44OTk1OCAxMi4yMzA4IDkuODA2MTEgMTIuMjE0OCA5LjcxOTU4IDEyLjE4MjdaIiBmaWxsPSJ3aGl0ZSIvPgo8L2c+Cjwvc3ZnPgo=" alt=""></button>
+        <button class="gnb-menu" data-log="GNB 채용 상품">채용 상품</button>
+        <button class="gnb-menu" data-log="GNB 헤드헌팅">헤드헌팅</button>
+        <button class="gnb-menu" data-log="GNB 기업라운지">기업라운지</button>
+      </div>
+    </div>
+    <div class="gnb-right">
+      <button class="gnb-post" data-log="GNB 공고등록"><img class="ic" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjExLjMzMzMiIGhlaWdodD0iMTEuMzMzMyIgdmlld0JveD0iMCAwIDExLjMzMzMgMTEuMzMzMyIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggaWQ9ImVkaXQiIGQ9Ik0xIDEwLjMzMzNIMS44NDFMOC42NjUzMyAzLjUwOUw3LjgyNDMzIDIuNjY4TDEgOS40OTIzM1YxMC4zMzMzWk0wLjYwMjY2NyAxMS4zMzMzQzAuNDMxODg5IDExLjMzMzMgMC4yODg3NzggMTEuMjc1NiAwLjE3MzMzMyAxMS4xNkMwLjA1Nzc3NzcgMTEuMDQ0NiAwIDEwLjkwMTQgMCAxMC43MzA3VjkuNTc1NjdDMCA5LjQxMzExIDAuMDMxMjIyMSA5LjI1ODE3IDAuMDkzNjY2NiA5LjExMDgzQzAuMTU2IDguOTYzNSAwLjI0MTg4OSA4LjgzNTExIDAuMzUxMzMzIDguNzI1NjdMOC43OTM2NyAwLjI4NzE2NkM4Ljg5NDQ0IDAuMTk1NjExIDkuMDA1NzIgMC4xMjQ4ODkgOS4xMjc1IDAuMDc1QzkuMjQ5MzkgMC4wMjUgOS4zNzcxNyAwIDkuNTEwODMgMEM5LjY0NDUgMCA5Ljc3Mzk0IDAuMDIzNzIyNSA5Ljg5OTE3IDAuMDcxMTY3QzEwLjAyNDUgMC4xMTg2MTEgMTAuMTM1NCAwLjE5NDA1NSAxMC4yMzIgMC4yOTc1TDExLjA0NjIgMS4xMjE4M0MxMS4xNDk2IDEuMjE4MzkgMTEuMjIzMyAxLjMyOTUgMTEuMjY3MyAxLjQ1NTE3QzExLjMxMTMgMS41ODA4MyAxMS4zMzMzIDEuNzA2NSAxMS4zMzMzIDEuODMyMTdDMTEuMzMzMyAxLjk2NjI4IDExLjMxMDQgMi4wOTQyMiAxMS4yNjQ3IDIuMjE2QzExLjIxODkgMi4zMzc4OSAxMS4xNDYxIDIuNDQ5MjIgMTEuMDQ2MiAyLjU1TDIuNjA3NjcgMTAuOTgyQzIuNDk4MjIgMTEuMDkxNCAyLjM2OTgzIDExLjE3NzMgMi4yMjI1IDExLjIzOTdDMi4wNzUxNyAxMS4zMDIxIDEuOTIwMjIgMTEuMzMzMyAxLjc1NzY3IDExLjMzMzNIMC42MDI2NjdaTTguMjM3NSAzLjA5NTgzTDcuODI0MzMgMi42NjhMOC42NjUzMyAzLjUwOUw4LjIzNzUgMy4wOTU4M1oiIGZpbGw9IiMyMjIyMjIiLz4KPC9zdmc+Cg==" alt="">공고등록</button>
+      <button class="gnb-menu has-chev gnb-account" data-log="GNB 내 계정"><span class="me"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE1IiBoZWlnaHQ9IjE1IiB2aWV3Qm94PSIwIDAgMTUgMTUiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJzeXN0ZW1fcGVyc29uX2ZpbGxlZCI+CjxwYXRoIGlkPSJwZXJzb24iIGQ9Ik01Ljk1Mzc1IDYuNjY2NDFDNS41MjYyNSA2LjIzOTAyIDUuMzEyNSA1LjcyMzYgNS4zMTI1IDUuMTIwMTZDNS4zMTI1IDQuNTE2ODMgNS41MjYyNSA0LjAwMTQxIDUuOTUzNzUgMy41NzM5MUM2LjM4MTI1IDMuMTQ2NDEgNi44OTY2NyAyLjkzMjY2IDcuNSAyLjkzMjY2QzguMTAzMzMgMi45MzI2NiA4LjYxODc1IDMuMTQ2NDEgOS4wNDYyNSAzLjU3MzkxQzkuNDczNzUgNC4wMDE0MSA5LjY4NzUgNC41MTY4MyA5LjY4NzUgNS4xMjAxNkM5LjY4NzUgNS43MjM2IDkuNDczNzUgNi4yMzkwMiA5LjA0NjI1IDYuNjY2NDFDOC42MTg3NSA3LjA5MzkxIDguMTAzMzMgNy4zMDc2NiA3LjUgNy4zMDc2NkM2Ljg5NjY3IDcuMzA3NjYgNi4zODEyNSA3LjA5MzkxIDUuOTUzNzUgNi42NjY0MVpNMi44MTI1IDExLjExNzhWMTAuNjc3OEMyLjgxMjUgMTAuMzcxOCAyLjg5NTYzIDEwLjA4ODMgMy4wNjE4OCA5LjgyNzUxQzMuMjI4MTMgOS41NjY2NyAzLjQ1MDMxIDkuMzY2MTUgMy43Mjg0NCA5LjIyNTk0QzQuMzQ2MTUgOC45MjMxMyA0Ljk2OTMyIDguNjk2IDUuNTk3OTcgOC41NDQ1NEM2LjIyNjYxIDguMzkzMDggNi44NjA2MiA4LjMxNzM1IDcuNSA4LjMxNzM1QzguMTM5MzggOC4zMTczNSA4Ljc3MzM5IDguMzkzMDggOS40MDIwMyA4LjU0NDU0QzEwLjAzMDcgOC42OTYgMTAuNjUzOSA4LjkyMzEzIDExLjI3MTYgOS4yMjU5NEMxMS41NDk3IDkuMzY2MTUgMTEuNzcxOSA5LjU2NjY3IDExLjkzODEgOS44Mjc1MUMxMi4xMDQ0IDEwLjA4ODMgMTIuMTg3NSAxMC4zNzE4IDEyLjE4NzUgMTAuNjc3OFYxMS4xMTc4QzEyLjE4NzUgMTEuMzgxNCAxMi4wOTUyIDExLjYwNTUgMTEuOTEwNSAxMS43OTAzQzExLjcyNTggMTEuOTc1IDExLjUwMTYgMTIuMDY3NCAxMS4yMzggMTIuMDY3NEgzLjc2MjAzQzMuNDk4MzkgMTIuMDY3NCAzLjI3NDIyIDExLjk3NSAzLjA4OTUzIDExLjc5MDNDMi45MDQ4NCAxMS42MDU1IDIuODEyNSAxMS4zODE0IDIuODEyNSAxMS4xMTc4WiIgZmlsbD0id2hpdGUiLz4KPC9nPgo8L3N2Zz4K" alt=""></span>내 계정<img class="chev" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJzeXN0ZW1fY2hldnJvbl9kb3duIj4KPHBhdGggaWQ9ImtleWJvYXJkX2Fycm93X2Rvd24iIGQ9Ik05LjcxOTU4IDEyLjE4MjdDOS42MzMwNiAxMi4xNTA2IDkuNTUwNzcgMTIuMDk1NiA5LjQ3MjcxIDEyLjAxNzdMNS43Mjc1IDguMjcyNTFDNS42MTIyMiA4LjE1NzA5IDUuNTUzMiA4LjAxMjAyIDUuNTUwNDIgNy44MzczQzUuNTQ3NzggNy42NjI3MiA1LjYwNjgxIDcuNTE1MDEgNS43Mjc1IDcuMzk0MThDNS44NDgzMyA3LjI3MzQ4IDUuOTk0NzIgNy4yMTMxMyA2LjE2NjY3IDcuMjEzMTNDNi4zMzg2MSA3LjIxMzEzIDYuNDg1IDcuMjczNDggNi42MDU4MyA3LjM5NDE4TDEwIDEwLjc4ODZMMTMuMzk0MiA3LjM5NDE4QzEzLjUwOTYgNy4yNzg5IDEzLjY1NDcgNy4yMTk4NyAxMy44Mjk0IDcuMjE3MDlDMTQuMDA0IDcuMjE0NDUgMTQuMTUxNyA3LjI3MzQ4IDE0LjI3MjUgNy4zOTQxOEMxNC4zOTMyIDcuNTE1MDEgMTQuNDUzNSA3LjY2MTQgMTQuNDUzNSA3LjgzMzM0QzE0LjQ1MzUgOC4wMDUyOSAxNC4zOTMyIDguMTUxNjggMTQuMjcyNSA4LjI3MjUxTDEwLjUyNzMgMTIuMDE3N0MxMC40NDkyIDEyLjA5NTYgMTAuMzY2OSAxMi4xNTA2IDEwLjI4MDQgMTIuMTgyN0MxMC4xOTM5IDEyLjIxNDggMTAuMTAwNCAxMi4yMzA4IDEwIDEyLjIzMDhDOS44OTk1OCAxMi4yMzA4IDkuODA2MTEgMTIuMjE0OCA5LjcxOTU4IDEyLjE4MjdaIiBmaWxsPSJ3aGl0ZSIvPgo8L2c+Cjwvc3ZnPgo=" alt=""></button>
+    </div>
+  </nav>
+</div>
+<div class="notice"><b>공지</b>공지사항 노출 영역입니다.</div>
+
+<main class="contents view" id="view-jobs">
+  <div class="page-heading">
+    <h1>공고 관리</h1>
+    <button class="btn primary" data-log="공고 관리: 공고 등록">공고 등록<svg viewBox="0 0 24 24"><path d="M15.963 9c.885 0 1.361 1.002.786 1.65l-3.962 4.464a1.06 1.06 0 0 1-1.573 0L7.25 10.65C6.676 10.002 7.153 9 8.038 9z" fill="currentColor"/></svg></button>
+  </div>
+  <div class="linetab jobs-tabs">
+    <button class="on" data-log="공고 관리 탭: 진행중">진행중 10</button>
+    <button data-log="공고 관리 탭: 대기중">대기중 0</button>
+    <button data-log="공고 관리 탭: 마감">마감 38</button>
+    <button data-log="공고 관리 탭: 전체">전체 48</button>
+  </div>
+  <div class="jobs-bar">
+    <p class="jobs-total">총 10개</p>
+    <button class="check" data-log="공고 관리: 미열람 지원자 있는 공고"><span class="box"></span>미열람 지원자 있는 공고</button>
+  </div>
+  <div class="jobs-table">
+    <div class="jobs-grid jobs-head">
+      <span>상태</span><span>공고 정보</span><span>전체 지원자</span><span>미열람</span><span>미심사</span><span>최종 합격</span><span>불합격</span>
+    </div>
+    <div id="jobList"></div>
+  </div>
+  <div class="jobs-pager">
+    <div class="pagination">
+      <button class="arrow" data-log="공고 관리 페이지: 이전">‹</button>
+      <button class="on" data-log="공고 관리 페이지 1">1</button>
+      <button class="arrow" data-log="공고 관리 페이지: 다음">›</button>
+    </div>
+    <div class="per"><span>10 ⌄</span><span>개씩 보기</span></div>
+  </div>
+  <ul class="jobs-notes">
+    <li>채용 공고 게재 기간은 최초 게재일로부터 최대 60일입니다.</li>
+    <li>무료 공고는 최대 5개까지 등록할 수 있으며, 초과 시 ‘대기중’ 상태로 전환됩니다. (유료 서비스 이용 시 등록 제한 없음)</li>
+    <li>‘대기중’ 공고는 접수 마감일까지 대기중 리스트에서 확인할 수 있으며, 마감일이 지난 경우 마감 리스트에서 1년간 확인할 수 있습니다.</li>
+    <li>마감된 공고는 마감일로부터 1년간 확인할 수 있습니다. (지원자 정보는 공고 마감일 기준 90일까지 열람 가능)</li>
+  </ul>
+</main>
+
+<main class="contents view" id="view-applicants" hidden>
+  <div class="page-heading">
+    <h1>지원자 목록</h1>
+  </div>
+
+  <div class="postings-head">
+    <span class="postings-label">공고 <b>10</b></span>
+    <div class="excel" id="excel">
+      <button class="btn sm" id="excelBtn" aria-haspopup="menu" aria-expanded="false" data-log="[엑셀] 공고 영역 '공고 전체 지원자 저장' 버튼">
+        <img class="ic16" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJtZWRpYS1maWxlcy9kb3dubG9hZCI+CjxwYXRoIGlkPSJ2ZWN0b3IiIGQ9Ik0xOS40NTg1IDE5Ljg0NTdDMTkuNzg0NCAxOS41Mjc2IDIwLjMwNjIgMTkuNTMzNiAyMC42MjQ1IDE5Ljg1OTRDMjAuOTQyOCAyMC4xODU0IDIwLjkzNjggMjAuNzA4IDIwLjYxMDggMjEuMDI2NEMyMC4wNDQ3IDIxLjU3OTEgMTkuMjgxIDIxLjg4NTcgMTguNDg4NyAyMS44ODU3SDUuMzcwNTdDNC41NzgyOSAyMS44ODU3IDMuODE0NjEgMjEuNTc5MSAzLjI0ODUgMjEuMDI2NEMyLjkyMjUzIDIwLjcwOCAyLjkxNjQ5IDIwLjE4NTQgMy4yMzQ4MyAxOS44NTk0QzMuNTUzMTcgMTkuNTMzNiA0LjA3NDk0IDE5LjUyNzUgNC40MDA4NSAxOS44NDU3QzQuNjU0NzEgMjAuMDkzNiA1LjAwMzMzIDIwLjIzNjMgNS4zNzA1NyAyMC4yMzYzSDE4LjQ4ODdDMTguODU1OSAyMC4yMzYzIDE5LjIwNDYgMjAuMDkzNiAxOS40NTg1IDE5Ljg0NTdaTTExLjEwNTkgMi44MjUyQzExLjEwNTkgMi4zNjk1NiAxMS40NzU1IDIgMTEuOTMxMSAyQzEyLjM4NjYgMi4wMDAxOCAxMi43NTUzIDIuMzY5NjcgMTIuNzU1MyAyLjgyNTJWMTMuMDM3MUwxNi4zNjc2IDkuNjk1MzFDMTYuNzAyMSA5LjM4NTk2IDE3LjIyNDMgOS40MDY3NyAxNy41MzM3IDkuNzQxMjFDMTcuODQzIDEwLjA3NTcgMTcuODIzMSAxMC41OTc4IDE3LjQ4ODcgMTAuOTA3MkwxMi40OTA3IDE1LjUzMDNDMTIuMTc0NSAxNS44MjI0IDExLjY4NjcgMTUuODIyNSAxMS4zNzA2IDE1LjUzMDNMNi4zNzM1IDEwLjkwNzJDNi4wMzkxMyAxMC41OTc5IDYuMDE4NDQgMTAuMDc1NyA2LjMyNzYxIDkuNzQxMjFDNi42MzY5NSA5LjQwNjgzIDcuMTU5MTUgOS4zODYxMyA3LjQ5MzYyIDkuNjk1MzFMMTEuMTA1OSAxMy4wMzcxVjIuODI1MloiIGZpbGw9IiMxMzE2MTgiLz4KPC9nPgo8L3N2Zz4K" alt="">
+        공고 전체 지원자 저장
+        <img class="ic16" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJhcnJvd3Mvc2VsZWN0LWRvd24iPgo8cGF0aCBpZD0idmVjdG9yIiBkPSJNMTUuOTYyNyA5QzE2Ljg0NzYgOSAxNy4zMjQ1IDEwLjAwMTcgMTYuNzQ4NiAxMC42NTA0TDEyLjc4NjcgMTUuMTE0M0MxMi4zNzM0IDE1LjU3OTggMTEuNjI3MyAxNS41Nzk4IDExLjIxMzkgMTUuMTE0M0w3LjI1MSAxMC42NTA0QzYuNjc1NjcgMTAuMDAxNyA3LjE1MzIxIDkgOC4wMzc5MSA5SDE1Ljk2MjdaIiBmaWxsPSIjMTMxNjE4Ii8+CjwvZz4KPC9zdmc+Cg==" alt="">
+      </button>
+      <div class="tooltip" role="tooltip">엑셀 저장 중입니다.</div>
+      <div class="dropdown" id="dropdown" role="menu">
+        <button class="dd-item" role="menuitem" data-choice="ongoing" data-log="[엑셀] 공고 영역 > 진행중 공고 전체">진행중 공고 전체</button>
+        <button class="dd-item" role="menuitem" data-choice="closed" data-log="[엑셀] 공고 영역 > 마감 공고 전체">마감 공고 전체</button>
+      </div>
+    </div>
+  </div>
+  <div class="postings">
+    <button class="all-btn" data-log="공고 전체보기"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJpbnRlcmZhY2UvbWVudSI+CjxnIGlkPSJ2ZWN0b3IiPgo8cGF0aCBkPSJNMjAgMTguMjVDMjAuNDE0MiAxOC4yNSAyMC43NSAxOC41ODU4IDIwLjc1IDE5QzIwLjc1IDE5LjQxNDIgMjAuNDE0MiAxOS43NSAyMCAxOS43NUg0QzMuNTg1NzkgMTkuNzUgMy4yNSAxOS40MTQyIDMuMjUgMTlDMy4yNSAxOC41ODU4IDMuNTg1NzkgMTguMjUgNCAxOC4yNUgyMFoiIGZpbGw9IiMxMzE2MTgiLz4KPHBhdGggZD0iTTIwIDExLjI1QzIwLjQxNDIgMTEuMjUgMjAuNzUgMTEuNTg1OCAyMC43NSAxMkMyMC43NSAxMi40MTQyIDIwLjQxNDIgMTIuNzUgMjAgMTIuNzVINEMzLjU4NTc5IDEyLjc1IDMuMjUgMTIuNDE0MiAzLjI1IDEyQzMuMjUgMTEuNTg1OCAzLjU4NTc5IDExLjI1IDQgMTEuMjVIMjBaIiBmaWxsPSIjMTMxNjE4Ii8+CjxwYXRoIGQ9Ik0yMCA0LjI1QzIwLjQxNDIgNC4yNSAyMC43NSA0LjU4NTc5IDIwLjc1IDVDMjAuNzUgNS40MTQyMSAyMC40MTQyIDUuNzUgMjAgNS43NUg0QzMuNTg1NzkgNS43NSAzLjI1IDUuNDE0MjEgMy4yNSA1QzMuMjUgNC41ODU3OSAzLjU4NTc5IDQuMjUgNCA0LjI1SDIwWiIgZmlsbD0iIzEzMTYxOCIvPgo8L2c+CjwvZz4KPC9zdmc+Cg==" alt="">전체보기</button>
+    <div class="cards" id="cards"></div>
+  </div>
+
+  <div class="tab-filter">
+    <div class="linetab">
+      <button class="on" data-log="포지션 탭: 포지션 전체">포지션 전체</button>
+      <button data-log="포지션 탭 2">{포지션명}</button>
+      <button data-log="포지션 탭 3">{포지션명}</button>
+      <button data-log="포지션 탭 4">{포지션명}</button>
+    </div>
+    <div class="filter">
+      <div class="segment">
+        <button class="on" data-log="보기: 리스트"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJiaXovaG9yaXpvbnRhbC1saXN0Ij4KPGcgaWQ9Imljb24iPgo8cGF0aCBkPSJNMTYuNjY2NyA0LjY0Mjg3QzE2LjY2NjcgNC4zNzk4NyAxNi40NTM1IDQuMTY2NjggMTYuMTkwNSA0LjE2NjY4TDcuMzYwMDMgNC4xNjY2OEM3LjA5NzA0IDQuMTY2NjggNi44ODM4NCA0LjM3OTg3IDYuODgzODQgNC42NDI4N1Y2LjA3MTQ0QzYuODgzODQgNi4zMzQ0MyA3LjA5NzA0IDYuNTQ3NjMgNy4zNjAwMyA2LjU0NzYzTDE2LjE5MDUgNi41NDc2M0MxNi40NTM1IDYuNTQ3NjMgMTYuNjY2NyA2LjMzNDQzIDE2LjY2NjcgNi4wNzE0NFY0LjY0Mjg3WiIgZmlsbD0iIzEzMTYxOCIvPgo8cGF0aCBkPSJNMTYuNjY2NyA5LjI4Mzg2QzE2LjY2NjcgOS4wMjA4NyAxNi40NTM1IDguODA3NjcgMTYuMTkwNSA4LjgwNzY3TDcuMzYwMDMgOC44MDc2N0M3LjA5NzA0IDguODA3NjcgNi44ODM4NCA5LjAyMDg3IDYuODgzODQgOS4yODM4NlYxMC43MTI0QzYuODgzODQgMTAuOTc1NCA3LjA5NzA0IDExLjE4ODYgNy4zNjAwMyAxMS4xODg2TDE2LjE5MDUgMTEuMTg4NkMxNi40NTM1IDExLjE4ODYgMTYuNjY2NyAxMC45NzU0IDE2LjY2NjcgMTAuNzEyNFY5LjI4Mzg2WiIgZmlsbD0iIzEzMTYxOCIvPgo8cGF0aCBkPSJNMTYuMTkwNSAxMy40NDg3QzE2LjQ1MzUgMTMuNDQ4NyAxNi42NjY3IDEzLjY2MTkgMTYuNjY2NyAxMy45MjQ5VjE1LjM1MzRDMTYuNjY2NyAxNS42MTY0IDE2LjQ1MzUgMTUuODI5NiAxNi4xOTA1IDE1LjgyOTZMNy4zNjAwMyAxNS44Mjk2QzcuMDk3MDQgMTUuODI5NiA2Ljg4Mzg0IDE1LjYxNjQgNi44ODM4NCAxNS4zNTM0VjEzLjkyNDlDNi44ODM4NCAxMy42NjE5IDcuMDk3MDQgMTMuNDQ4NyA3LjM2MDAzIDEzLjQ0ODdMMTYuMTkwNSAxMy40NDg3WiIgZmlsbD0iIzEzMTYxOCIvPgo8cGF0aCBkPSJNNS43MTQyOSA0LjY0Mjg3QzUuNzE0MjkgNC4zNzk4NyA1LjUwMTA5IDQuMTY2NjggNS4yMzgwOSA0LjE2NjY4TDMuODA5NTIgNC4xNjY2OEMzLjU0NjUzIDQuMTY2NjggMy4zMzMzMyA0LjM3OTg3IDMuMzMzMzMgNC42NDI4N0wzLjMzMzMzIDYuMDc1MjJDMy4zMzMzMyA2LjMzODIxIDMuNTQ2NTMgNi41NTE0MSAzLjgwOTUyIDYuNTUxNDFMNS4yMzgwOSA2LjU1MTQxQzUuNTAxMDkgNi41NTE0MSA1LjcxNDI5IDYuMzM4MjEgNS43MTQyOSA2LjA3NTIyVjQuNjQyODdaIiBmaWxsPSIjMTMxNjE4Ii8+CjxwYXRoIGQ9Ik01LjIzODA5IDguODA3NjdDNS41MDEwOSA4LjgwNzY3IDUuNzE0MjkgOS4wMjA4NyA1LjcxNDI5IDkuMjgzODZWMTAuNzE2MkM1LjcxNDI5IDEwLjk3OTIgNS41MDEwOSAxMS4xOTI0IDUuMjM4MDkgMTEuMTkyNEgzLjgwOTUyQzMuNTQ2NTMgMTEuMTkyNCAzLjMzMzMzIDEwLjk3OTIgMy4zMzMzMyAxMC43MTYyTDMuMzMzMzMgOS4yODM4NkMzLjMzMzMzIDkuMDIwODcgMy41NDY1MyA4LjgwNzY3IDMuODA5NTIgOC44MDc2N0g1LjIzODA5WiIgZmlsbD0iIzEzMTYxOCIvPgo8cGF0aCBkPSJNNS43MTQyOSAxMy45MjQ5QzUuNzE0MjkgMTMuNjYxOSA1LjUwMTA5IDEzLjQ0ODcgNS4yMzgwOSAxMy40NDg3SDMuODA5NTJDMy41NDY1MyAxMy40NDg3IDMuMzMzMzMgMTMuNjYxOSAzLjMzMzMzIDEzLjkyNDlMMy4zMzMzMyAxNS4zNTcyQzMuMzMzMzMgMTUuNjIwMiAzLjU0NjUzIDE1LjgzMzQgMy44MDk1MiAxNS44MzM0SDUuMjM4MDlDNS41MDEwOSAxNS44MzM0IDUuNzE0MjkgMTUuNjIwMiA1LjcxNDI5IDE1LjM1NzJWMTMuOTI0OVoiIGZpbGw9IiMxMzE2MTgiLz4KPC9nPgo8L2c+Cjwvc3ZnPgo=" alt="리스트"></button>
+        <button data-log="보기: 칸반"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJiaXova2FuYmFuLWxpc3QiPgo8ZyBpZD0iaWNvbiI+CjxwYXRoIGQ9Ik00LjY0Mjg4IDQuMTk2NDNDNC42NDI4OCAzLjk0OTg3IDQuODQyNzUgMy43NSA1LjA4OTMxIDMuNzVIOC42NjA3NkM4LjkwNzMyIDMuNzUgOS4xMDcxOSAzLjk0OTg3IDkuMTA3MTkgNC4xOTY0M1Y1LjA4OTI5QzkuMTA3MTkgNS4zMzU4NSA4LjkwNzMyIDUuNTM1NzIgOC42NjA3NiA1LjUzNTcySDUuMDg5MzFDNC44NDI3NSA1LjUzNTcyIDQuNjQyODggNS4zMzU4NSA0LjY0Mjg4IDUuMDg5MjlWNC4xOTY0M1oiIGZpbGw9IiMxMzE2MTgiLz4KPHBhdGggZD0iTTUuMDg5MzEgNi40Mjg1MkM0Ljg0Mjc1IDYuNDI4NTIgNC42NDI4OCA2LjYyODM5IDQuNjQyODggNi44NzQ5NVYxNS44MDM2QzQuNjQyODggMTYuMDUwMSA0Ljg0Mjc1IDE2LjI1IDUuMDg5MzEgMTYuMjVIOC42NjA3NkM4LjkwNzMyIDE2LjI1IDkuMTA3MTkgMTYuMDUwMSA5LjEwNzE5IDE1LjgwMzZWNi44NzQ5NUM5LjEwNzE5IDYuNjI4MzkgOC45MDczMiA2LjQyODUyIDguNjYwNzYgNi40Mjg1Mkg1LjA4OTMxWiIgZmlsbD0iIzEzMTYxOCIvPgo8cGF0aCBkPSJNMTEuMzM5MyA2LjQyODUyQzExLjA5MjggNi40Mjg1MiAxMC44OTI5IDYuNjI4MzkgMTAuODkyOSA2Ljg3NDk1VjE1LjgwMzZDMTAuODkyOSAxNi4wNTAxIDExLjA5MjggMTYuMjUgMTEuMzM5MyAxNi4yNUgxNC45MTA4QzE1LjE1NzMgMTYuMjUgMTUuMzU3MiAxNi4wNTAxIDE1LjM1NzIgMTUuODAzNlY2Ljg3NDk1QzE1LjM1NzIgNi42MjgzOSAxNS4xNTczIDYuNDI4NTIgMTQuOTEwOCA2LjQyODUySDExLjMzOTNaIiBmaWxsPSIjMTMxNjE4Ii8+CjxwYXRoIGQ9Ik0xMS4zMzkzIDMuNzVDMTEuMDkyOCAzLjc1IDEwLjg5MjkgMy45NDk4NyAxMC44OTI5IDQuMTk2NDNWNS4wODkyOUMxMC44OTI5IDUuMzM1ODUgMTEuMDkyOCA1LjUzNTcyIDExLjMzOTMgNS41MzU3MkgxNC44OTUzQzE1LjE0MTggNS41MzU3MiAxNS4zNDE3IDUuMzM1ODUgMTUuMzQxNyA1LjA4OTI5VjQuMTk2NDNDMTUuMzQxNyAzLjk0OTg3IDE1LjE0MTggMy43NSAxNC44OTUzIDMuNzVIMTEuMzM5M1oiIGZpbGw9IiMxMzE2MTgiLz4KPC9nPgo8L2c+Cjwvc3ZnPgo=" alt="칸반"></button>
+      </div>
+      <div class="filter-right">
+        <button class="check" data-log="미열람 지원자만 보기"><span class="box"></span>미열람 지원자만 보기</button>
+        <div class="icon-btns">
+          <button class="icon-btn" data-log="툴바: 검색"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJpbnRlcmZhY2Uvc2VhcmNoIj4KPHBhdGggaWQ9InZlY3RvciIgZD0iTTguNzUgMi41QzEyLjIwMTggMi41IDE1IDUuMjk4MjIgMTUgOC43NUMxNSAxMC4yNTA4IDE0LjQ2OTcgMTEuNjI2OSAxMy41ODgxIDEyLjcwNDNMMTcuMDY3MSAxNi4xODI1QzE3LjMxMTEgMTYuNDI2NSAxNy4zMTExIDE2LjgyMyAxNy4wNjcxIDE3LjA2NzFDMTYuODIzIDE3LjMxMTEgMTYuNDI2NSAxNy4zMTExIDE2LjE4MjUgMTcuMDY3MUwxMi43MDQzIDEzLjU4ODFDMTEuNjI2OSAxNC40Njk3IDEwLjI1MDggMTUgOC43NSAxNUM1LjI5ODIyIDE1IDIuNSAxMi4yMDE4IDIuNSA4Ljc1QzIuNSA1LjI5ODIyIDUuMjk4MjIgMi41IDguNzUgMi41Wk04Ljc1IDMuNzVDNS45ODg1OCAzLjc1IDMuNzUgNS45ODg1OCAzLjc1IDguNzVDMy43NSAxMS41MTE0IDUuOTg4NTggMTMuNzUgOC43NSAxMy43NUMxMS41MTE0IDEzLjc1IDEzLjc1IDExLjUxMTQgMTMuNzUgOC43NUMxMy43NSA1Ljk4ODU4IDExLjUxMTQgMy43NSA4Ljc1IDMuNzVaIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZmlsbD0iIzEzMTYxOCIvPgo8L2c+Cjwvc3ZnPgo=" alt="검색"></button>
+          <button class="icon-btn" data-log="툴바: 필터"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJpbnRlcmZhY2UvZmlsdGVyIj4KPGcgaWQ9InZlY3RvciI+CjxwYXRoIGQ9Ik0xMi40OTkyIDEyLjcwODNDMTMuNTQ3OSAxMi43MDgzIDE0LjQyOTkgMTMuNDEzNSAxNC43MDIxIDE0LjM3NUgxNy40OTkyQzE3Ljg0NDMgMTQuMzc1IDE4LjEyNDIgMTQuNjU0OCAxOC4xMjQyIDE1QzE4LjEyNDIgMTUuMzQ1MiAxNy44NDQzIDE1LjYyNSAxNy40OTkyIDE1LjYyNUgxNC43MDIxQzE0LjQyOTkgMTYuNTg2NSAxMy41NDc5IDE3LjI5MTcgMTIuNDk5MiAxNy4yOTE3QzExLjQ1MDQgMTcuMjkxNyAxMC41Njg1IDE2LjU4NjUgMTAuMjk2MiAxNS42MjVIMi41QzIuMTU0ODIgMTUuNjI1IDEuODc1IDE1LjM0NTIgMS44NzUgMTVDMS44NzUgMTQuNjU0OCAyLjE1NDgyIDE0LjM3NSAyLjUgMTQuMzc1SDEwLjI5NjJDMTAuNTY4NSAxMy40MTM1IDExLjQ1MDQgMTIuNzA4MyAxMi40OTkyIDEyLjcwODNaTTEyLjQ5OTIgMTMuOTU4M0MxMS45MjY2IDEzLjk1ODMgMTEuNDYxOSAxNC40MjAzIDExLjQ1NzUgMTQuOTkxOUMxMS40NTc2IDE0Ljk5NDYgMTEuNDU4MyAxNC45OTczIDExLjQ1ODMgMTVDMTEuNDU4MyAxNS4wMDI0IDExLjQ1NzUgMTUuMDA0OSAxMS40NTc1IDE1LjAwNzNDMTEuNDYxNSAxNS41NzkzIDExLjkyNjQgMTYuMDQxNyAxMi40OTkyIDE2LjA0MTdDMTMuMDc0NCAxNi4wNDE3IDEzLjU0MDkgMTUuNTc1MyAxMy41NDA5IDE1QzEzLjU0MDkgMTQuNDI0NyAxMy4wNzQ0IDEzLjk1ODMgMTIuNDk5MiAxMy45NTgzWiIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGZpbGw9IiMxMzE2MTgiLz4KPHBhdGggZD0iTTUuODMyNTIgNy43MDgzM0M2Ljg4MTI1IDcuNzA4MzUgNy43NjMyMyA4LjQxMzQ2IDguMDM1NDggOS4zNzVIMTcuNDk5MkMxNy44NDQzIDkuMzc1MSAxOC4xMjQyIDkuNjU0ODggMTguMTI0MiAxMEMxOC4xMjQyIDEwLjM0NTEgMTcuODQ0MyAxMC42MjQ5IDE3LjQ5OTIgMTAuNjI1SDguMDM1NDhDNy43NjMyMyAxMS41ODY1IDYuODgxMjUgMTIuMjkxNyA1LjgzMjUyIDEyLjI5MTdDNC43ODM3OCAxMi4yOTE3IDMuOTAxODIgMTEuNTg2NSAzLjYyOTU2IDEwLjYyNUgyLjVDMi4xNTQ4MiAxMC42MjUgMS44NzUgMTAuMzQ1MiAxLjg3NSAxMEMxLjg3NSA5LjY1NDgyIDIuMTU0ODIgOS4zNzUgMi41IDkuMzc1SDMuNjI5NTZDMy45MDE4MiA4LjQxMzQ2IDQuNzgzNzggNy43MDgzMyA1LjgzMjUyIDcuNzA4MzNaTTUuODMyNTIgOC45NTgzM0M1LjI1OTk2IDguOTU4MzMgNC43OTUyMyA5LjQyMDMgNC43OTA4NSA5Ljk5MTg2QzQuNzkwODkgOS45OTQ1NyA0Ljc5MTY3IDkuOTk3MjggNC43OTE2NyAxMEM0Ljc5MTY3IDEwLjAwMjQgNC43OTA4OCAxMC4wMDQ5IDQuNzkwODUgMTAuMDA3M0M0Ljc5NDc5IDEwLjU3OTMgNS4yNTk2OSAxMS4wNDE3IDUuODMyNTIgMTEuMDQxN0M2LjQwNzc3IDExLjA0MTcgNi44NzQxOSAxMC41NzUzIDYuODc0MTkgMTBDNi44NzQxOSA5LjQyNDcgNi40MDc3OCA4Ljk1ODM1IDUuODMyNTIgOC45NTgzM1oiIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBmaWxsPSIjMTMxNjE4Ii8+CjxwYXRoIGQ9Ik0xNC4xNjY3IDIuNzA4MzNDMTUuMjE1NCAyLjcwODM1IDE2LjA5NzQgMy40MTM0NiAxNi4zNjk2IDQuMzc1SDE3LjVDMTcuODQ1MiA0LjM3NTAyIDE4LjEyNSA0LjY1NDgzIDE4LjEyNSA1QzE4LjEyNSA1LjM0NTE3IDE3Ljg0NTIgNS42MjQ5OCAxNy41IDUuNjI1SDE2LjM2OTZDMTYuMDk3NCA2LjU4NjU0IDE1LjIxNTQgNy4yOTE2NSAxNC4xNjY3IDcuMjkxNjdDMTMuMTE3OSA3LjI5MTY3IDEyLjIzNiA2LjU4NjU0IDExLjk2MzcgNS42MjVIMi41QzIuMTU0ODIgNS42MjUgMS44NzUgNS4zNDUxOCAxLjg3NSA1QzEuODc1IDQuNjU0ODIgMi4xNTQ4MiA0LjM3NSAyLjUgNC4zNzVIMTEuOTYzN0MxMi4yMzYgMy40MTM0NiAxMy4xMTc5IDIuNzA4MzMgMTQuMTY2NyAyLjcwODMzWk0xNC4xNjY3IDMuOTU4MzNDMTMuNTkxNCAzLjk1ODMzIDEzLjEyNSA0LjQyNDY5IDEzLjEyNSA1QzEzLjEyNSA1LjU3NTMxIDEzLjU5MTQgNi4wNDE2NyAxNC4xNjY3IDYuMDQxNjdDMTQuNzQxOSA2LjA0MTY1IDE1LjIwODMgNS41NzUzIDE1LjIwODMgNUMxNS4yMDgzIDQuNDI0NyAxNC43NDE5IDMuOTU4MzUgMTQuMTY2NyAzLjk1ODMzWiIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGZpbGw9IiMxMzE2MTgiLz4KPC9nPgo8L2c+Cjwvc3ZnPgo=" alt="필터"></button>
+          <button class="icon-btn" data-log="툴바: 정렬"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJpbnRlcmZhY2UvbGlzdCI+CjxnIGlkPSJ2ZWN0b3IiPgo8cGF0aCBkPSJNMTQuMTY2NyA1LjIwODMzQzE0LjUxMTggNS4yMDgzMyAxNC43OTE2IDUuNDg4MjIgMTQuNzkxNyA1LjgzMzMzVjE1Ljk5MTJMMTcuMjU5OSAxMy41MjI5QzE3LjUwNCAxMy4yNzg5IDE3LjkwMDUgMTMuMjc4OSAxOC4xNDQ1IDEzLjUyMjlDMTguMzg4MiAxMy43NjcgMTguMzg4NSAxNC4xNjI4IDE4LjE0NDUgMTQuNDA2N0wxNC42MDg2IDE3Ljk0MTlDMTQuNTgyMyAxNy45NjgxIDE0LjU1NDEgMTcuOTkxMyAxNC41MjQ3IDE4LjAxMTlDMTQuNTIwNyAxOC4wMTQ3IDE0LjUxNjcgMTguMDE4MSAxNC41MTI1IDE4LjAyMDhMMTQuNTEwMSAxOC4wMjE2QzE0LjUwMTMgMTguMDI3NCAxNC40OTE0IDE4LjAzMTggMTQuNDgyNCAxOC4wMzcxQzE0LjQ1NzkgMTguMDUxNiAxNC40MzMzIDE4LjA2NTkgMTQuNDA2NyAxOC4wNzdDMTQuNDA1MiAxOC4wNzc2IDE0LjQwMzQgMTguMDc4OCAxNC40MDE5IDE4LjA3OTRDMTQuMzY0NCAxOC4wOTQ2IDE0LjMyNTYgMTguMTA2IDE0LjI4NjMgMTguMTEzNkMxNC4yODM0IDE4LjExNDIgMTQuMjgwMyAxOC4xMTM5IDE0LjI3NzQgMTguMTE0NEMxNC4yNDE1IDE4LjEyMDggMTQuMjA0NCAxOC4xMjUgMTQuMTY2NyAxOC4xMjVDMTQuMTI5NCAxOC4xMjUgMTQuMDkzMSAxOC4xMjA3IDE0LjA1NzYgMTguMTE0NEMxNC4wNTI3IDE4LjExMzUgMTQuMDQ3MSAxOC4xMTMgMTQuMDQyMiAxOC4xMTJDMTMuOTU3MSAxOC4wOTQ4IDEzLjg3ODkgMTguMDU5OCAxMy44MTAyIDE4LjAxMTlDMTMuNzk3NSAxOC4wMDMgMTMuNzg0MiAxNy45OTQyIDEzLjc3MiAxNy45ODQyQzEzLjc1NTggMTcuOTcxIDEzLjczOTkgMTcuOTU3IDEzLjcyNDggMTcuOTQxOUwxMC4xODk2IDE0LjQwNjdDOS45NDU1OCAxNC4xNjI3IDkuOTQ1NjYgMTMuNzY3IDEwLjE4OTYgMTMuNTIyOUMxMC40MzM3IDEzLjI3ODkgMTAuODI5MyAxMy4yNzg5IDExLjA3MzQgMTMuNTIyOUwxMy41NDE3IDE1Ljk5MTJWNS44MzMzM0MxMy41NDE4IDUuNDg4MjQgMTMuODIxNiA1LjIwODM1IDE0LjE2NjcgNS4yMDgzM1oiIGZpbGw9IiMxMzE2MTgiLz4KPHBhdGggZD0iTTUuOTQzMiAxLjg4NTU4QzUuOTQ4MDQgMS44ODY0MSA1Ljk1MzA0IDEuODg3MDUgNS45NTc4NSAxLjg4ODAyQzYuMDQyOTggMS45MDUyMyA2LjEyMTg0IDEuOTQwMTQgNi4xOTA2IDEuOTg4MTJDNi4yMDMyNCAxLjk5Njk0IDYuMjE1OTQgMi4wMDU5MSA2LjIyODAzIDIuMDE1NzlDNi4yNDQyNCAyLjAyOTAzIDYuMjYwMTIgMi4wNDI5OSA2LjI3NTIzIDIuMDU4MTFMOS44MTEyIDUuNTkzMjZDMTAuMDU1MSA1LjgzNzIgMTAuMDU0OSA2LjIzMjk0IDkuODExMiA2LjQ3NzA1QzkuNTY3MTMgNi43MjExMyA5LjE3MTQ5IDYuNzIxMTMgOC45Mjc0MiA2LjQ3NzA1TDYuNDU4MzQgNC4wMDg3OVYxNC4xNjY3QzYuNDU4MjYgMTQuNTExOCA2LjE3ODQ2IDE0Ljc5MTcgNS44MzMzNCAxNC43OTE3QzUuNDg4MjggMTQuNzkxNiA1LjIwODQyIDE0LjUxMTcgNS4yMDgzNCAxNC4xNjY3VjQuMDA4NzlMMi43NDAwOCA2LjQ3NzA1QzIuNDk2IDYuNzIxMTMgMi4xMDAzNyA2LjcyMTEzIDEuODU2MjkgNi40NzcwNUMxLjYxMjI3IDYuMjMyOTcgMS42MTIyMyA1LjgzNzMyIDEuODU2MjkgNS41OTMyNkw1LjM5MTQ1IDIuMDU4MTFDNS40MTc2NiAyLjAzMTkgNS40NDU5MyAyLjAwODY5IDUuNDc1MjcgMS45ODgxMkM1LjQ3OTI4IDEuOTg1MzEgNS40ODM0IDEuOTgxODkgNS40ODc0NyAxLjk3OTE3TDUuNDg5OTIgMS45NzgzNUM1LjQ5ODY5IDEuOTcyNTcgNS41MDg1OSAxLjk2ODE5IDUuNTE3NTggMS45NjI4OUM1LjU0MjEgMS45NDg0NCA1LjU2Njc2IDEuOTM0MDggNS41OTMyNyAxLjkyMzAxQzUuNTk0ODQgMS45MjIzNiA1LjU5NjU3IDEuOTIxMjIgNS41OTgxNSAxLjkyMDU3QzUuNjM1NjYgMS45MDUzNyA1LjY3NDQzIDEuODk0MDIgNS43MTM3MSAxLjg4NjM5QzUuNzE2NjIgMS44ODU4MyA1LjcxOTc0IDEuODg2MDYgNS43MjI2NiAxLjg4NTU4QzUuNzU4NTEgMS44NzkxOCA1Ljc5NTY2IDEuODc1MDEgNS44MzMzNCAxLjg3NUM1Ljg3MDY4IDEuODc1IDUuOTA3NjYgMS44NzkzIDUuOTQzMiAxLjg4NTU4WiIgZmlsbD0iIzEzMTYxOCIvPgo8L2c+CjwvZz4KPC9zdmc+Cg==" alt="정렬"></button>
+          <button class="icon-btn" data-log="툴바: 스크랩"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiB2aWV3Qm94PSIwIDAgMjAgMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJnZW5lcmFsL3NjcmFwLWxpbmUiPgo8cGF0aCBpZD0idmVjdG9yIiBkPSJNOS45NDQ3MSAxLjY2NjY3QzEwLjE2MTYgMS42NjY3MyAxMC4zNjIyIDEuNzc5MDcgMTAuNDgyOSAxLjk2MzE5TDEwLjUyOTcgMi4wNDYxOVYyLjA0NzhMMTIuNzc1NCA3LjAzNDc4TDE3Ljc3MTkgNy43MDM1OEwxNy43NzM0IDcuNzA0MzhDMTguMDIgNy43NDE2MiAxOC4yMjQ5IDcuOTIyMzggMTguMzAxNiA4LjE3MDkzQzE4LjM3ODMgOC40MTk1IDE4LjMxMzMgOC42OTE5OSAxOC4xMzQzIDguODczNTdMMTQuNTM1MSAxMi41MDI4TDE1LjU4IDE3LjUyOTNMMTUuNTgwNyAxNy41MzI1QzE1LjYyMyAxNy43ODkyIDE1LjUyMjEgMTguMDQ4NyAxNS4zMjEyIDE4LjIwMjFDMTUuMTIwOSAxOC4zNTUxIDE0Ljg1NTUgMTguMzc1OSAxNC42MzU2IDE4LjI1NjFMOS44NzI1NCAxNS43NzQzTDUuMTUzMjEgMTguMjU2OUw1LjE1MjQ0IDE4LjI1NjFDNC45MzI1OCAxOC4zNzU2IDQuNjY3MDMgMTguMzU1MiA0LjQ2Njg1IDE4LjIwMjFDNC4yNjYzNSAxOC4wNDg2IDQuMTY1ODcgMTcuNzg5IDQuMjA4MTIgMTcuNTMyNUw0LjIwOTY1IDE3LjUyNDRMNS41NTQ3NCAxMi41MDEyTDEuODY2NDkgOC44NzUxOEwxLjg2NTcyIDguODczNTdDMS42ODY3MSA4LjY5MTk5IDEuNjIxNjggOC40MTk0NSAxLjY5ODM1IDguMTcwOTNDMS43NzUwNiA3LjkyMjQxIDEuOTgwMDQgNy43NDE2OCAyLjIyNjU2IDcuNzA0MzhMMi4yMjgxIDcuNzAzNThMNy4xNjcwMSA3LjAzNTU5TDkuMzU4OTIgMi4wNDg2MUw5LjM1OTY5IDIuMDQ2MTlDOS40NzAwNyAxLjgxMzQ2IDkuNjk2ODUgMS42NjY2OSA5Ljk0NDcxIDEuNjY2NjdaTTguMTg2NTcgNy45NjU0Nkw4LjE4NTgxIDcuOTY3ODdDOC4wOTAyNSA4LjE2OTM1IDcuOTA2MDggOC4zMDg5MSA3LjY5MzY4IDguMzQwOTVINy42OTIxNUwzLjczODI2IDguODYyMjlMNi43MTQ4MSAxMS43NzA0TDYuNzE1NTcgMTEuNzcyQzYuODcwOTMgMTEuOTI5NCA2Ljk0MTk2IDEyLjE1NzEgNi45MDUyMSAxMi4zODAzTDYuOTAzNjcgMTIuMzkwOEw1Ljc0NDM3IDE2LjM5MTVMOS41NzE1OSAxNC4zOTU2QzkuNzYgMTQuMjkzMSA5Ljk4NDI1IDE0LjI5MzMgMTAuMTcyNyAxNC4zOTU2TDE0LjA1OTEgMTYuMzk5NkwxMy4xODg0IDEyLjM4NDRMMTMuMTg2OSAxMi4zODAzQzEzLjE1MDUgMTIuMTU3MyAxMy4yMjIxIDExLjkyOTIgMTMuMzc3MyAxMS43NzJMMTYuMjY0IDguODYzMUwxMi4yNTE4IDguMzQwOTVIMTIuMjUwM0MxMi4wMzggOC4zMDg4NiAxMS44NTQ0IDguMTY5MjEgMTEuNzU4OSA3Ljk2Nzg3TDExLjc1ODEgNy45NjYyNkw5Ljk0NTQ4IDMuOTAxMUw4LjE4NjU3IDcuOTY1NDZaIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZmlsbD0iIzEzMTYxOCIvPgo8L2c+Cjwvc3ZnPgo=" alt="스크랩"></button>
+        </div>
+        <span class="vsep"></span>
+        <div class="tb-end">
+          <div class="tb-dl" id="tbDl">
+            <button class="btn radius-md" data-log="[엑셀] 툴바 '엑셀 저장' 버튼 (현재 공고)"><img class="ic16" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJtZWRpYS1maWxlcy9kb3dubG9hZCI+CjxwYXRoIGlkPSJ2ZWN0b3IiIGQ9Ik0xOS40NTg1IDE5Ljg0NTdDMTkuNzg0NCAxOS41Mjc2IDIwLjMwNjIgMTkuNTMzNiAyMC42MjQ1IDE5Ljg1OTRDMjAuOTQyOCAyMC4xODU0IDIwLjkzNjggMjAuNzA4IDIwLjYxMDggMjEuMDI2NEMyMC4wNDQ3IDIxLjU3OTEgMTkuMjgxIDIxLjg4NTcgMTguNDg4NyAyMS44ODU3SDUuMzcwNTdDNC41NzgyOSAyMS44ODU3IDMuODE0NjEgMjEuNTc5MSAzLjI0ODUgMjEuMDI2NEMyLjkyMjUzIDIwLjcwOCAyLjkxNjQ5IDIwLjE4NTQgMy4yMzQ4MyAxOS44NTk0QzMuNTUzMTcgMTkuNTMzNiA0LjA3NDk0IDE5LjUyNzUgNC40MDA4NSAxOS44NDU3QzQuNjU0NzEgMjAuMDkzNiA1LjAwMzMzIDIwLjIzNjMgNS4zNzA1NyAyMC4yMzYzSDE4LjQ4ODdDMTguODU1OSAyMC4yMzYzIDE5LjIwNDYgMjAuMDkzNiAxOS40NTg1IDE5Ljg0NTdaTTExLjEwNTkgMi44MjUyQzExLjEwNTkgMi4zNjk1NiAxMS40NzU1IDIgMTEuOTMxMSAyQzEyLjM4NjYgMi4wMDAxOCAxMi43NTUzIDIuMzY5NjcgMTIuNzU1MyAyLjgyNTJWMTMuMDM3MUwxNi4zNjc2IDkuNjk1MzFDMTYuNzAyMSA5LjM4NTk2IDE3LjIyNDMgOS40MDY3NyAxNy41MzM3IDkuNzQxMjFDMTcuODQzIDEwLjA3NTcgMTcuODIzMSAxMC41OTc4IDE3LjQ4ODcgMTAuOTA3MkwxMi40OTA3IDE1LjUzMDNDMTIuMTc0NSAxNS44MjI0IDExLjY4NjcgMTUuODIyNSAxMS4zNzA2IDE1LjUzMDNMNi4zNzM1IDEwLjkwNzJDNi4wMzkxMyAxMC41OTc5IDYuMDE4NDQgMTAuMDc1NyA2LjMyNzYxIDkuNzQxMjFDNi42MzY5NSA5LjQwNjgzIDcuMTU5MTUgOS4zODYxMyA3LjQ5MzYyIDkuNjk1MzFMMTEuMTA1OSAxMy4wMzcxVjIuODI1MloiIGZpbGw9IiMxMzE2MTgiLz4KPC9nPgo8L3N2Zz4K" alt="">엑셀 저장</button>
+            <div class="tb-tip" role="tooltip">이 공고의 모든 단계 지원자를 엑셀로 저장해요</div>
+          </div>
+        <button class="btn radius-md" data-log="채용 단계 편집"><img class="ic16" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJpbnRlcmZhY2UvZWRpdCI+CjxwYXRoIGlkPSJ2ZWN0b3IiIGQ9Ik0xNS41MyAzLjE1OTQ0QzE2LjYwMzkgMi4wODU1IDE4LjM0NTIgMi4wODU1IDE5LjQxOTEgMy4xNTk0NEwyMC44MzQxIDQuNTc0NDRDMjEuOTA3NiA1LjY0Nzk2IDIxLjkwODEgNy4zODgzMyAyMC44MzUyIDguNDYyNDVMOS4yOTgxMyAyMC4wMTIzQzguOTY5ODkgMjAuMzQwOSA4LjUyNDQ4IDIwLjUyNTYgOC4wNjAwMSAyMC41MjU2TDQuOTkwNjYgMjAuNTI1NkM0LjAxMzIyIDIwLjUyNTYgMy4yMjUyNyAxOS43MjQ5IDMuMjQwODkgMTguNzQ3NkwzLjI4MzE1IDE2LjEwMzRDMy4yOTA0MSAxNS42NDkgMy40NzQxNSAxNS4yMTUzIDMuNzk1NDkgMTQuODk0TDE1LjUzIDMuMTU5NDRaTTE4LjM1ODQgNC4yMjAxQzE3Ljg3MDMgMy43MzE5NSAxNy4wNzg4IDMuNzMxOTUgMTYuNTkwNyA0LjIyMDFMMTQuNzg1MiA2LjAyNTU2TDE3Ljk2OSA5LjIwOTMzTDE5Ljc3MzkgNy40MDIzOEMyMC4yNjE2IDYuOTE0MTQgMjAuMjYxNCA2LjEyMzA2IDE5Ljc3MzQgNS42MzUxTDE4LjM1ODQgNC4yMjAxWk0xNi45MDg5IDEwLjI3MDZMMTMuNzI0NiA3LjA4NjIyTDQuODU2MTUgMTUuOTU0NkM0LjgxMDI0IDE2LjAwMDUgNC43ODM5OSAxNi4wNjI1IDQuNzgyOTYgMTYuMTI3NEw0Ljc0MDcgMTguNzcxNkM0LjczODQ2IDE4LjkxMTIgNC44NTEwMyAxOS4wMjU2IDQuOTkwNjYgMTkuMDI1Nkw4LjA2MDAxIDE5LjAyNTZDOC4xMjYzNiAxOS4wMjU2IDguMTg5OTkgMTguOTk5MiA4LjIzNjg5IDE4Ljk1MjJMMTYuOTA4OSAxMC4yNzA2WiIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGZpbGw9IiMxMzE2MTgiLz4KPC9nPgo8L3N2Zz4K" alt="">채용 단계 편집</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="list">
+    <div class="stage">
+      <button data-log="단계: 지원서 검토">지원서 검토<span class="n">N</span></button>
+      <button class="on" data-log="단계: 1차 면접">1차 면접<span class="n">N</span></button>
+      <button data-log="단계: 2차 면접">2차 면접<span class="n">N</span></button>
+      <button data-log="단계: 3차 면접">3차 면접<span class="n">N</span></button>
+      <button data-log="단계: 4차 면접">4차 면접<span class="n">N</span></button>
+      <button data-log="단계: 최종합격">최종합격<span class="n">N</span></button>
+    </div>
+
+    <div class="table" id="table">
+      <div class="row thead">
+        <div class="cell c-chk" data-log="목록: 전체 선택 체크박스"><span class="cb"></span></div>
+        <div class="cell c-pos" style="font-size:14px;font-weight:500">포지션</div>
+        <div class="cell c-name">이름</div>
+        <div class="cell c-edu">학력</div>
+        <div class="cell c-car">경력</div>
+        <div class="cell c-date"><span class="th-info">지원일<img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiB2aWV3Qm94PSIwIDAgMTYgMTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJpbnRlcmZhY2UvaW5mbyI+CjxwYXRoIGlkPSJ2ZWN0b3IiIGQ9Ik04LjAwMDMzIDEuMzMzMzNDMTEuNjgyMSAxLjMzMzUxIDE0LjY2NjMgNC4zMTg1NCAxNC42NjYzIDguMDAwMzNDMTQuNjY2MiAxMS42ODIgMTEuNjgyIDE0LjY2NjIgOC4wMDAzMyAxNC42NjYzQzQuMzE4NTQgMTQuNjY2MyAxLjMzMzUxIDExLjY4MjEgMS4zMzMzMyA4LjAwMDMzQzEuMzMzMzMgNC4zMTg0MyA0LjMxODQzIDEuMzMzMzMgOC4wMDAzMyAxLjMzMzMzWk04LjAwMDMzIDIuMzMzMzNDNC44NzA3MSAyLjMzMzMzIDIuMzMzMzMgNC44NzA3MSAyLjMzMzMzIDguMDAwMzNDMi4zMzM1MSAxMS4xMjk4IDQuODcwODIgMTMuNjY2MyA4LjAwMDMzIDEzLjY2NjNDMTEuMTI5NyAxMy42NjYyIDEzLjY2NjIgMTEuMTI5NyAxMy42NjYzIDguMDAwMzNDMTMuNjY2MyA0Ljg3MDgyIDExLjEyOTggMi4zMzM1MSA4LjAwMDMzIDIuMzMzMzNaTTguMDAwMzMgNy4wMDYxOEM4LjI3NjMyIDcuMDA2MzcgOC41MDAzMyA3LjI0Nzk4IDguNTAwMzMgNy41NDUyNVYxMS4xMzUxQzguNTAwMTQgMTEuNDMyMiA4LjI3NjIgMTEuNjczIDguMDAwMzMgMTEuNjczMkM3LjcyNDMgMTEuNjczMiA3LjUwMDUxIDExLjQzMjMgNy41MDAzMyAxMS4xMzUxVjcuNTQ1MjVDNy41MDAzMyA3LjI0Nzg2IDcuNzI0MTggNy4wMDYxOCA4LjAwMDMzIDcuMDA2MThaTTguMDAzMjYgNC42NjYzNEM4LjM2OTY1IDQuNjY2MzUgOC42NjYzNCA0Ljk2NDAxIDguNjY2MzQgNS4zMzA0VjUuMzM2MjZDOC42NjYzNCA1LjcwMjY2IDguMzY5NjUgNi4wMDAzMiA4LjAwMzI2IDYuMDAwMzNINy45OTY0MkM3LjYzMDE4IDYuMDAwMTQgNy4zMzMzMyA1LjcwMjU1IDcuMzMzMzMgNS4zMzYyNlY1LjMzMDRDNy4zMzMzMyA0Ljk2NDEyIDcuNjMwMTggNC42NjY1MyA3Ljk5NjQyIDQuNjY2MzRIOC4wMDMyNloiIGZpbGw9IiM4NjkxOUEiLz4KPC9nPgo8L3N2Zz4K" alt=""></span></div>
+        <div class="cell c-int">면접 일정</div>
+      </div>
+    </div>
+
+    <div class="pagination">
+      <button class="arrow" data-log="페이지: 이전">‹</button>
+      <button class="on" data-log="페이지 1">1</button>
+      <button data-log="페이지 2">2</button>
+      <button data-log="페이지 3">3</button>
+      <button data-log="페이지 4">4</button>
+      <button class="arrow" data-log="페이지: 다음">›</button>
+    </div>
+  </section>
+</main>
+
+<div class="snackbar" id="snackbar" role="status">
+  <img class="spin" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJCWnByb2dyZXNzL2ljb24iPgo8cGF0aCBpZD0iRWxsaXBzZSAxMjE5IiBkPSJNMjAuNzUgMTJDMjAuNzUgMTYuODMyNSAxNi44MzI1IDIwLjc1IDEyIDIwLjc1QzcuMTY3NTEgMjAuNzUgMy4yNSAxNi44MzI1IDMuMjUgMTJDMy4yNSA3LjE2NzUxIDcuMTY3NTEgMy4yNSAxMiAzLjI1QzE2LjgzMjUgMy4yNSAyMC43NSA3LjE2NzUxIDIwLjc1IDEyWiIgc3Ryb2tlLXdpZHRoPSIyLjUiIHN0cm9rZT0iI0UyRTZFOCIvPgo8cGF0aCBpZD0iRWxsaXBzZSAxMjIxIiBkPSJNMjAuODU3MSAxMkMyMC44NTcxIDE2Ljg5MTcgMTYuODkxNyAyMC44NTcxIDEyIDIwLjg1NzFDNy4xMDgzMyAyMC44NTcxIDMuMTQyODUgMTYuODkxNyAzLjE0Mjg1IDEyQzMuMTQyODUgNy4xMDgzNCA3LjEwODMzIDMuMTQyODYgMTIgMy4xNDI4NiIgc3Ryb2tlLXdpZHRoPSIyLjciIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlPSIjMUI1NUY2Ii8+CjwvZz4KPC9zdmc+Cg==" alt="">
+  <div class="txt">
+    <div class="ttl">지원자 엑셀 저장 진행 중</div>
+    <div class="pct"><span id="pct">0</span>% 완료</div>
+  </div>
+  <button class="btn sm" id="cancelBtn" data-log="[엑셀] 저장 취소">취소</button>
+</div>
+
+<div class="confirm-dim" id="confirmDim" role="dialog" aria-modal="true" aria-labelledby="confirmMsg">
+  <div class="confirm">
+    <p class="confirm-msg" id="confirmMsg"></p>
+    <p class="confirm-sub">공고와 지원자가 많으면 파일 생성에 시간이 걸릴 수 있어요.</p>
+    <div class="confirm-btns">
+      <button class="btn" id="confirmCancel" data-log="[확인 단계] 취소">취소</button>
+      <button class="btn primary" id="confirmOk" data-log="[확인 단계] 저장">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="done" role="status" aria-live="polite">파일이 저장되었습니다</div>
+
+<div class="actionbar" id="actionbar" role="toolbar" aria-label="선택한 지원자 작업">
+  <div class="ab-inner">
+    <div class="ab-count"><b id="selCount">0명</b>선택됨</div>
+    <div class="ab-btns">
+      <button class="ab-btn" data-log="[액션바] 단계 이동"><span class="ab-ic"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M8.62874 12.4288C8.48524 12.2853 8.41349 12.1071 8.41349 11.8943V5.36351L6.09624 7.68076C5.95774 7.81926 5.78783 7.88851 5.58649 7.88851C5.38533 7.88851 5.20716 7.8161 5.05199 7.67126C4.89683 7.5161 4.81924 7.33785 4.81924 7.13651C4.81924 6.93535 4.89683 6.75718 5.05199 6.60201L8.52124 3.13276C8.61474 3.0391 8.71341 2.9731 8.81724 2.93476C8.92108 2.89626 9.03324 2.87701 9.15374 2.87701C9.27441 2.87701 9.38824 2.89626 9.49524 2.93476C9.60224 2.9731 9.70258 3.0391 9.79624 3.13276L13.2905 6.62701C13.4392 6.77568 13.5125 6.9481 13.5105 7.14426C13.5087 7.34043 13.4302 7.5161 13.275 7.67126C13.1198 7.8161 12.9442 7.8911 12.748 7.89626C12.5518 7.90126 12.3762 7.82626 12.2212 7.67126L9.91349 5.36351V11.9038C9.91349 12.1166 9.84166 12.2933 9.69799 12.4338C9.55449 12.5741 9.37633 12.6443 9.16349 12.6443C8.95066 12.6443 8.77241 12.5724 8.62874 12.4288ZM14.5047 21.0558C14.3977 21.0173 14.2974 20.9513 14.2037 20.8578L10.7095 17.3635C10.5608 17.2147 10.4875 17.0423 10.4895 16.8463C10.4913 16.6501 10.5698 16.4744 10.725 16.3193C10.8802 16.1744 11.0558 16.0994 11.252 16.0943C11.4482 16.0891 11.6237 16.1641 11.7787 16.3193L14.0865 18.627V12.0865C14.0865 11.8737 14.1583 11.6971 14.302 11.5568C14.4455 11.4164 14.6237 11.3463 14.8365 11.3463C15.0493 11.3463 15.2276 11.418 15.3712 11.5615C15.5147 11.7052 15.5865 11.8834 15.5865 12.0963V18.627L17.9037 16.3095C18.0422 16.1712 18.2122 16.102 18.4135 16.102C18.6147 16.102 18.7928 16.1744 18.948 16.3193C19.1032 16.4744 19.1807 16.6526 19.1807 16.8538C19.1807 17.0551 19.1032 17.2333 18.948 17.3885L15.4787 20.8578C15.3852 20.9513 15.2866 21.0173 15.1827 21.0558C15.0789 21.0943 14.9667 21.1135 14.8462 21.1135C14.7256 21.1135 14.6117 21.0943 14.5047 21.0558Z"/></svg></span>단계 이동</button>
+      <button class="ab-btn" data-log="[액션바] 심사하기"><span class="ab-ic"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M1.923 12.877a.7.7 0 0 1-.22-.522q.003-.3.235-.532a.78.78 0 0 1 .527-.225.7.7 0 0 1 .527.225l3.723 3.723.25-.25q.147.07.307.172.161.103.316.259.233.232.225.527a.76.76 0 0 1-.24.527l-.24.24a.92.92 0 0 1-.633.264.84.84 0 0 1-.633-.264zm10.427 2.654 8.673-8.673a.7.7 0 0 1 .522-.22q.3.002.532.235.217.232.225.527a.7.7 0 0 1-.225.527l-9.094 9.094a.87.87 0 0 1-.633.271.87.87 0 0 1-.633-.27l-4.144-4.145a.72.72 0 0 1-.213-.514.75.75 0 0 1 .213-.54.74.74 0 0 1 .535-.232q.3 0 .534.232zm4.061-7.589-3.88 3.881a.72.72 0 0 1-.515.213.75.75 0 0 1-.54-.213.74.74 0 0 1-.232-.534q0-.303.233-.535l3.88-3.881a.72.72 0 0 1 .515-.213.75.75 0 0 1 .54.213.74.74 0 0 1 .232.535q0 .301-.233.534"/></svg></span>심사하기</button>
+      <span class="ab-sep"></span>
+      <button class="ab-btn" id="abRead" data-log="[액션바] 열람 처리"><span class="ab-ic"><svg viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M18.707 7.293a1 1 0 0 1 0 1.414l-8 8a1 1 0 0 1-1.454-.043l-4-4.5a1 1 0 0 1 1.494-1.328l3.296 3.707 7.25-7.25a1 1 0 0 1 1.414 0"/></svg></span>열람 처리</button>
+      <button class="ab-btn" data-log="[액션바] 면접 제안"><span class="ab-ic"><svg viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M19.492 4a2.5 2.5 0 0 1 2.498 2.5v11c0 1.38-1.118 2.5-2.498 2.5H4.498a2.5 2.5 0 0 1-2.499-2.5v-11A2.5 2.5 0 0 1 4.498 4zm-6.89 9.52a1.25 1.25 0 0 1-1.214 0l-7.89-4.385V17.5a1 1 0 0 0 1 1h14.994a1 1 0 0 0 1-1V9.135zM4.498 5.5a1 1 0 0 0-1 1v.92l8.497 4.722 8.496-4.722V6.5a1 1 0 0 0-.999-1z"/></svg></span>면접 제안</button>
+      <div class="ab-dl">
+        <button class="ab-btn" id="abDownload" data-log="[액션바] 다운로드"><span class="ab-ic"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M19.459 19.846a.825.825 0 1 1 1.152 1.18c-.566.553-1.33.86-2.122.86H5.37a3.04 3.04 0 0 1-2.122-.86.825.825 0 0 1 1.152-1.18c.254.248.602.39.97.39h13.118c.367 0 .716-.142.97-.39m-8.353-17.02a.825.825 0 0 1 1.65 0v10.211l3.612-3.342a.825.825 0 0 1 1.12 1.212l-4.997 4.623a.825.825 0 0 1-1.12 0l-4.997-4.623a.826.826 0 0 1 1.12-1.212l3.612 3.342z"/></svg></span>엑셀·이력서</button>
+        <div class="ab-menu" id="abMenu" role="menu">
+          <button class="dd-item" role="menuitem" data-dl="excel" data-log="[액션바] 다운로드 > 지원자 정보 (Excel)">지원자 정보 (Excel)</button>
+          <button class="dd-item" role="menuitem" data-dl="pdf" data-log="[액션바] 다운로드 > 이력서 (PDF)">이력서 (PDF)</button>
+        </div>
+      </div>
+      <button class="ab-btn" data-log="[액션바] 더보기"><span class="ab-ic"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M6 10.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3M12 10.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3M18 10.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3"/></svg></span>더보기</button>
+    </div>
+  </div>
+</div>
+
+<aside class="facil" id="facil">
+  <header>진행자 로그 <span class="hint">Shift+L 닫기</span></header>
+  <ol id="logList"></ol>
+  <div class="acts">
+    <button id="copyLog">로그 복사</button>
+    <button id="resetAll">초기화 (다음 참가자)</button>
+  </div>
+</aside>
+
+<script>
+  // 지원자 행 (시안의 3가지 행 패턴 반복)
+  const rows = [
+    { pos: '인사관리자', unread: true, chip: '중복 지원자', int: 'btn' },
+    { pos: '$포지션 명 길어질 경우 2줄로 노출$', dateChip: 'NN일 경과', int: 'btn' },
+    { pos: '$포지션 명$', chip: '중복 지원자', dateChip: 'NN일 경과', int: '01.30(금) 오전 10:00' },
+    { pos: '인사관리자', unread: true, int: 'btn' },
+    { pos: '$포지션 명$', dateChip: 'NN일 경과', int: '02.03(화) 오후 2:00' },
+  ];
+  const table = document.getElementById('table');
+  rows.forEach((r, i) => {
+    const el = document.createElement('div');
+    el.className = 'row';
+    el.innerHTML = `
+      <div class="cell c-chk" data-log="목록: 행 ${i + 1} 체크박스"><span class="cb"></span></div>
+      <div class="cell c-pos">${r.pos}</div>
+      <div class="cell c-name">
+        <div class="person">
+          <img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgNDAgNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJBdmF0YXIvSXRlbSI+CjxjaXJjbGUgaWQ9IkVsbGlwc2UiIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iI0UyRTZFOCIvPgo8cGF0aCBpZD0iSW50ZXJzZWN0IiBkPSJNMjAgMjIuNUMyNy4zNjE3IDIyLjUgMzMuNTMyOCAyNi45ODA2IDM1LjE4NzUgMzMuMDExN0MzMS41MTk0IDM3LjI4OTEgMjYuMDc2NyA0MCAyMCA0MEMxMy45MjMxIDQwIDguNDc5NTggMzcuMjg5NCA0LjgxMTUyIDMzLjAxMTdDNi40NjYxMyAyNi45ODA1IDEyLjYzODIgMjIuNSAyMCAyMi41WiIgZmlsbD0id2hpdGUiLz4KPGNpcmNsZSBpZD0iSGVhZCIgY3g9IjIwIiBjeT0iMTQuMzc1IiByPSI2Ljg3NSIgZmlsbD0id2hpdGUiLz4KPHBhdGggaWQ9IkVsbGlwc2UgKFN0cm9rZSkiIGQ9Ik0zOC43NSAyMEMzOC43NSA5LjY0NDY2IDMwLjM1NTMgMS4yNSAyMCAxLjI1QzkuNjQ0NjYgMS4yNSAxLjI1IDkuNjQ0NjYgMS4yNSAyMEMxLjI1IDMwLjM1NTMgOS42NDQ2NiAzOC43NSAyMCAzOC43NVY0MEM4Ljk1NDMgNDAgMCAzMS4wNDU3IDAgMjBDMCA4Ljk1NDMgOC45NTQzIDAgMjAgMEMzMS4wNDU3IDAgNDAgOC45NTQzIDQwIDIwQzQwIDMxLjA0NTcgMzEuMDQ1NyA0MCAyMCA0MFYzOC43NUMzMC4zNTUzIDM4Ljc1IDM4Ljc1IDMwLjM1NTMgMzguNzUgMjBaIiBmaWxsPSIjRTJFNkU4Ii8+CjwvZz4KPC9zdmc+Cg==" alt="">
+          <div class="person-info">
+            <div>
+              <div class="name-line">
+                <span class="name">김하린<img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiB2aWV3Qm94PSIwIDAgMTYgMTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJnZW5lcmFsL3NjcmFwLWxpbmUiPgo8cGF0aCBpZD0idmVjdG9yIiBkPSJNNy45NTU3NyAxLjMzMzMzQzguMTI5MjggMS4zMzMzOSA4LjI4OTc5IDEuNDIzMjYgOC4zODYzMiAxLjU3MDU2TDguNDIzNzkgMS42MzY5NVYxLjYzODI0TDEwLjIyMDMgNS42Mjc4MkwxNC4yMTc1IDYuMTYyODZMMTQuMjE4NyA2LjE2MzUxQzE0LjQxNiA2LjE5MzMgMTQuNTc5OSA2LjMzNzkxIDE0LjY0MTMgNi41MzY3NUMxNC43MDI3IDYuNzM1NiAxNC42NTA3IDYuOTUzNTkgMTQuNTA3NCA3LjA5ODg2TDExLjYyODEgMTAuMDAyMkwxMi40NjQgMTQuMDIzNEwxMi40NjQ2IDE0LjAyNkMxMi40OTg0IDE0LjIzMTQgMTIuNDE3NiAxNC40MzkgMTIuMjU3IDE0LjU2MTdDMTIuMDk2NyAxNC42ODQxIDExLjg4NDQgMTQuNzAwNyAxMS43MDg1IDE0LjYwNDlMNy44OTgwNCAxMi42MTk0TDQuMTIyNTcgMTQuNjA1NUw0LjEyMTk1IDE0LjYwNDlDMy45NDYwNiAxNC43MDA1IDMuNzMzNjMgMTQuNjg0MSAzLjU3MzQ4IDE0LjU2MTdDMy40MTMwOCAxNC40Mzg5IDMuMzMyNyAxNC4yMzEyIDMuMzY2NDkgMTQuMDI2TDMuMzY3NzIgMTQuMDE5Nkw0LjQ0Mzc5IDEwLjAwMUwxLjQ5MzE5IDcuMTAwMTVMMS40OTI1OCA3LjA5ODg2QzEuMzQ5MzYgNi45NTM1OSAxLjI5NzM0IDYuNzM1NTYgMS4zNTg2OCA2LjUzNjc1QzEuNDIwMDQgNi4zMzc5MyAxLjU4NDA0IDYuMTkzMzUgMS43ODEyNSA2LjE2MzUxTDEuNzgyNDggNi4xNjI4Nkw1LjczMzYxIDUuNjI4NDdMNy40ODcxNCAxLjYzODg5TDcuNDg3NzUgMS42MzY5NUM3LjU3NjA2IDEuNDUwNzcgNy43NTc0OCAxLjMzMzM1IDcuOTU1NzcgMS4zMzMzM1pNNi41NDkyNiA2LjM3MjM3TDYuNTQ4NjUgNi4zNzQzQzYuNDcyMiA2LjUzNTQ4IDYuMzI0ODYgNi42NDcxMyA2LjE1NDk1IDYuNjcyNzZINi4xNTM3MkwyLjk5MDYgNy4wODk4M0w1LjM3MTg0IDkuNDE2MjlMNS4zNzI0NiA5LjQxNzU3QzUuNDk2NzQgOS41NDM1NSA1LjU1MzU3IDkuNzI1NjUgNS41MjQxNyA5LjkwNDI3TDUuNTIyOTQgOS45MTI2NUw0LjU5NTUgMTMuMTEzMkw3LjY1NzI3IDExLjUxNjVDNy44MDggMTEuNDM0NSA3Ljk4NzQgMTEuNDM0NyA4LjEzODE5IDExLjUxNjVMMTEuMjQ3MyAxMy4xMTk3TDEwLjU1MDggOS45MDc0OUwxMC41NDk1IDkuOTA0MjdDMTAuNTIwNCA5LjcyNTg1IDEwLjU3NzcgOS41NDMzOCAxMC43MDE4IDkuNDE3NTdMMTMuMDExMiA3LjA5MDQ4TDkuODAxNDMgNi42NzI3Nkg5LjgwMDJDOS42MzAzOSA2LjY0NzA5IDkuNDgzNTUgNi41MzUzNyA5LjQwNzEyIDYuMzc0M0w5LjQwNjUgNi4zNzMwMUw3Ljk1NjM4IDMuMTIwODhMNi41NDkyNiA2LjM3MjM3WiIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGZpbGw9IiMxMzE2MTgiLz4KPC9nPgo8L3N2Zz4K" alt=""></span>
+                ${r.unread ? '<span class="unread">미열람</span>' : ''}
+              </div>
+              <div class="age">(만 20세, 여)</div>
+            </div>
+            ${r.chip ? `<span class="chip">${r.chip}</span>` : ''}
+          </div>
+        </div>
+      </div>
+      <div class="cell c-edu">
+        <div class="t1">대학교(4년) 졸업</div>
+        <div class="t2">대한민국 대학교 대한민국 대학교 글 길어질 경우 랄라</div>
+        <div class="t3">금속공예과 글 길어질 겨우 말줄임아아</div>
+      </div>
+      <div class="cell c-car">
+        <div class="t1">13년 9개월 ∙ 재직중</div>
+        <div class="t2">(주)스타벅스 코리아 길어질 경우</div>
+        <div class="t3">희망연봉 25,000만원</div>
+      </div>
+      <div class="cell c-date">
+        <div class="int-date">25.01.10(목)</div>
+        ${r.dateChip ? `<span class="chip">${r.dateChip}</span>` : ''}
+      </div>
+      <div class="cell c-int">
+        ${r.int === 'btn'
+          ? `<button class="btn sm" style="align-self:flex-start" data-log="목록: 행 ${i + 1} 면접 제안하기">면접 제안하기</button>`
+          : `<div class="int-date">${r.int}</div>`}
+      </div>`;
+    el.dataset.log = `목록: 행 ${i + 1}`;
+    table.appendChild(el);
+  });
+
+  // ---- 공고 데이터 (공고 관리 목록 · 지원자 관리 공고 카드 공용) ----
+  const JUMP_ICON = '<svg class="ic-jump" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" fill="currentColor" d="M14.619 2c1.052 0 1.905.93 1.905 2.078v1.818h3.095C20.934 5.896 22 7.06 22 8.494v10.909C22 20.837 20.934 22 19.619 22H4.381C3.066 22 2 20.837 2 19.403V8.493C2 7.06 3.066 5.897 4.381 5.897h3.095V4.078C7.476 2.93 8.33 2 9.381 2zm0 11.948v.52c0 .573-.426 1.039-.952 1.039h-3.334c-.526 0-.952-.466-.952-1.04v-.519H3.429v5.455c0 .573.426 1.039.952 1.039h15.238c.526 0 .952-.466.952-1.04v-5.454zm-3.81 0h2.382V12.39h-2.382zM4.382 7.455c-.526 0-.952.465-.952 1.039v3.896H9.38v-.52c0-.574.426-1.039.952-1.039h3.334c.526 0 .952.465.952 1.04v.519h5.952V8.494c0-.574-.426-1.04-.952-1.04zm5-3.897c-.263 0-.476.233-.476.52v1.818h6.19V4.078c0-.287-.213-.52-.476-.52z"/></svg>';
+  const MORE_ICON = '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 16.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3M12 10.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3M12 4.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3"/></svg>';
+  const STRIP = {
+    jump: '<span class="l">' + JUMP_ICON + '점프업 3회 (PC+M)</span>',
+    smart: '<span class="l"><span class="ic-smart"></span>스마트픽 (라이트) 외 1건<i></i><b>6회 노출 · 0회 클릭</b> 성과!</span>',
+    promo: '<span class="l"><span class="ic-smart"></span>스마트픽으로 공고 노출을 높여, 지원자 <b>25~30명</b>을 더 만나보세요.<i></i><b>스마트픽 신청 ›</b></span><span class="r">베스트 채용 상품 보기</span>',
+  };
+  const JOBS = [
+    { title: '[경력 1년↑] 코리아유니버스 그래픽 디자이너 채용', period: '26.10.20 ~ 26.11.19', view: 128, no: 10081920, mod: '26.11.04', owner: '김하늘', counts: [12, 4, 5, 0, 1], strip: 'jump' },
+    { title: '인천공항시설관리㈜ 2026년 제2차 정기채용', period: '26.10.15 ~ 26.11.30', view: 342, no: 10081891, mod: '26.11.04', owner: '이호은', counts: [34, 4, 10, 2, 5], strip: 'smart' },
+    { title: '[신입/경력] 브랜드 마케팅 담당자 채용', period: '상시 채용 (마감: 27.01.03)', view: 57, no: 10081871, mod: '26.11.03', owner: '채용 담당자', counts: [8, 0, 3, 0, 0], strip: 'promo' },
+    { title: '물류센터 운영관리 정규직 채용 (경기 이천)', period: '26.10.28 ~ 26.11.27', view: 210, no: 10081870, mod: '26.11.03', owner: '채용 담당자', counts: [21, 4, 9, 0, 2] },
+    { title: '프론트엔드 개발자 (React) 경력 채용', period: '26.10.25 ~ 26.11.24', view: 189, no: 10081869, mod: '26.11.02', owner: '박서준', counts: [15, 2, 6, 1, 3], strip: 'jump' },
+    { title: '고객상담(CS) 파트 계약직 채용', period: '상시 채용 (마감: 26.12.19)', view: 96, no: 10081861, mod: '26.11.02', owner: '채용 담당자', counts: [27, 7, 12, 0, 4] },
+    { title: '재무회계 담당 경력직 채용', period: '26.10.21 ~ 26.11.20', view: 74, no: 10081860, mod: '26.11.01', owner: '채용 담당자', counts: [6, 1, 2, 0, 1], strip: 'promo' },
+    { title: '2026 하반기 영업관리 신입사원 공개채용', period: '26.10.10 ~ 26.11.09', view: 512, no: 10081826, mod: '26.10.31', owner: '이호은', counts: [48, 9, 20, 3, 8] },
+    { title: '품질관리(QC) 엔지니어 채용', period: '26.10.18 ~ 26.11.17', view: 63, no: 10081822, mod: '26.10.30', owner: '채용 담당자', counts: [5, 0, 1, 0, 0] },
+    { title: '인사총무 담당자 채용 (인사관리자)', period: '26.10.30 ~ 26.11.29', view: 41, no: 10081818, mod: '26.10.30', owner: '김하늘', counts: [3, 3, 3, 0, 0], strip: 'promo' },
+  ];
+  const COUNT_LABEL = ['전체 지원자', '미열람', '미심사', '최종 합격', '불합격'];
+
+  const jobList = document.getElementById('jobList');
+  JOBS.forEach((j, i) => {
+    const el = document.createElement('div');
+    el.className = 'job';
+    el.dataset.job = i;
+    el.dataset.log = `공고 관리: 공고 ${i + 1} 행`;
+    el.innerHTML = `
+      <div class="jobs-grid">
+        <div class="cell-x"><span class="badge success">진행중</span></div>
+        <div class="info">
+          <button class="job-title" data-log="공고 관리: 공고 ${i + 1} 제목">${j.title}</button>
+          <div class="job-meta">
+            <span class="m">${j.period}</span><i></i>
+            <span class="m"><em>조회</em>${j.view}</span><i></i>
+            <span class="m"><em>No.</em>${j.no}</span><i></i>
+            <span class="s">${j.mod} 수정</span><i></i>
+            <span class="s">${j.owner}</span>
+          </div>
+        </div>
+        ${j.counts.map((c, k) => `<div class="cell-x"><button class="num" data-log="공고 관리: 공고 ${i + 1} ${COUNT_LABEL[k]} 수">${c}</button></div>`).join('')}
+      </div>
+      ${j.strip ? `<div class="job-extra"><div class="job-strip">${STRIP[j.strip]}${j.strip === 'promo' ? '' : `<span class="more">${MORE_ICON}</span>`}</div></div>` : ''}`;
+    jobList.appendChild(el);
+  });
+
+  // 공고 행(제목·지원자 수 포함) 아무 곳이나 누르면 해당 공고의 지원자 관리로 이동
+  jobList.addEventListener('click', e => {
+    const row = e.target.closest('.job');
+    if (row) go('applicants', Number(row.dataset.job));
+  });
+
+  // 지원자 관리 상단 공고 카드: 선택한 공고를 맨 앞에 두고 나머지를 이어서 노출
+  const cards = document.getElementById('cards');
+  function renderCards(selected) {
+    const order = [selected, ...JOBS.map((_, i) => i).filter(i => i !== selected)];
+    cards.innerHTML = order.map((i, pos) => {
+      const j = JOBS[i];
+      const unread = j.counts[1];
+      return `<button class="card${pos === 0 ? ' selected' : ''}" data-log="지원자 관리: 공고 카드 '${j.title}'${pos === 0 ? ' (선택된 공고)' : ''}">
+        <div class="card-top"><span class="badge">진행중</span><span class="link"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiB2aWV3Qm94PSIwIDAgMTYgMTYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJpbnRlcmZhY2UvbGluayI+CjxnIGlkPSJ2ZWN0b3IiPgo8cGF0aCBkPSJNNy4zMzMzMyAzLjQ5NjA5QzcuNjA5NDggMy40OTYwOSA3LjgzMzMzIDMuNzE5OTUgNy44MzMzMyAzLjk5NjA5QzcuODMzMzMgNC4yNzIyNCA3LjYwOTQ4IDQuNDk2MDkgNy4zMzMzMyA0LjQ5NjA5SDMuNjY2NjdDMy4zOTA1MiA0LjQ5NjA5IDMuMTY2NjcgNC43MTk5NSAzLjE2NjY3IDQuOTk2MDlWMTIuMzMzM0MzLjE2NjY3IDEyLjYwOTUgMy4zOTA1MiAxMi44MzMzIDMuNjY2NjcgMTIuODMzM0gxMUMxMS4yNzYxIDEyLjgzMzMgMTEuNSAxMi42MDk1IDExLjUgMTIuMzMzM1Y4LjY2NDcxQzExLjUgOC4zODg1NyAxMS43MjM5IDguMTY0NzEgMTIgOC4xNjQ3MUMxMi4yNzYxIDguMTY0NzEgMTIuNSA4LjM4ODU3IDEyLjUgOC42NjQ3MVYxMi4zMzMzQzEyLjUgMTMuMTYxOCAxMS44Mjg0IDEzLjgzMzMgMTEgMTMuODMzM0gzLjY2NjY3QzIuODM4MjQgMTMuODMzMyAyLjE2NjY3IDEzLjE2MTggMi4xNjY2NyAxMi4zMzMzVjQuOTk2MDlDMi4xNjY2NyA0LjE2NzY3IDIuODM4MjQgMy40OTYwOSAzLjY2NjY3IDMuNDk2MDlINy4zMzMzM1oiIGZpbGw9IiMxMzE2MTgiLz4KPHBhdGggZD0iTTEzLjMzMzMgMi4xNjY2N0MxMy4zNjM2IDIuMTY2NjggMTMuMzkzMSAyLjE2OTk3IDEzLjQyMTkgMi4xNzUxM0MxMy40MjQ5IDIuMTc1NjcgMTMuNDI4IDIuMTc1ODMgMTMuNDMxIDIuMTc2NDNDMTMuNDQ0MiAyLjE3OTA0IDEzLjQ1NjYgMi4xODM4OCAxMy40Njk0IDIuMTg3NUMxMy40ODc3IDIuMTkyNjkgMTMuNTA2MyAyLjE5NzEgMTMuNTI0MSAyLjIwNDQzQzEzLjU1OCAyLjIxODQ2IDEzLjU4OTUgMi4yMzcwMSAxMy42MTkxIDIuMjU3ODFDMTMuNjQyNiAyLjI3NDI5IDEzLjY2NTkgMi4yOTIxNiAxMy42ODY4IDIuMzEzMTVDMTMuNzE5NyAyLjM0NTk5IDEzLjc0NTEgMi4zODMzMyAxMy43NjY5IDIuNDIxODhDMTMuNzc2OCAyLjQzOTI3IDEzLjc4NjUgMi40NTY2NSAxMy43OTQzIDIuNDc1MjZDMTMuODA4MSAyLjUwODY1IDEzLjgxODYgMi41NDI5OSAxMy44MjQ5IDIuNTc4MTNDMTMuODMgMi42MDY4OSAxMy44MzMzIDIuNjM2NDIgMTMuODMzMyAyLjY2NjY3VjYuNjY2NjdDMTMuODMzMyA2Ljk0Mjc1IDEzLjYwOTQgNy4xNjY1OCAxMy4zMzMzIDcuMTY2NjdDMTMuMDU3MiA3LjE2NjY3IDEyLjgzMzMgNi45NDI4MSAxMi44MzMzIDYuNjY2NjdWMy44NzM3TDcuMDg3MjQgOS42MTk3OUM2Ljg5MTk4IDkuODE1MDUgNi41NzQ4MiA5LjgxNTA1IDYuMzc5NTYgOS42MTk3OUM2LjE4NDU1IDkuNDI0NTYgNi4xODQ1MiA5LjEwNzk3IDYuMzc5NTYgOC45MTI3NkwxMi4xMjYzIDMuMTY2NjdIOS4zMzMzM0M5LjA1NzE5IDMuMTY2NjcgOC44MzMzMyAyLjk0MjgxIDguODMzMzMgMi42NjY2N0M4LjgzMzMzIDIuMzkwNTIgOS4wNTcxOSAyLjE2NjY3IDkuMzMzMzMgMi4xNjY2N0gxMy4zMzMzWiIgZmlsbD0iIzEzMTYxOCIvPgo8L2c+CjwvZz4KPC9zdmc+Cg==" alt=""></span></div>
+        <div class="card-title">${j.title}</div>
+        <div class="card-meta">${j.period}<span>∙</span>미열람 <span class="n${unread ? '' : ' zero'}">${unread}</span></div>
+      </button>`;
+    }).join('');
+  }
+
+  // ---- 화면 전환 ----
+  // 파일을 data: 주소로 여는 환경에서도 동작하도록 해시 대신 history state를 쓰고, 실패하면 화면만 바꾼다
+  const viewJobs = document.getElementById('view-jobs');
+  const viewApplicants = document.getElementById('view-applicants');
+  const gnbJobs = document.getElementById('gnbJobs');
+  const gnbApplicants = document.getElementById('gnbApplicants');
+
+  function show(view, idx) {
+    const onApplicants = view === 'applicants';
+    viewJobs.hidden = onApplicants;
+    viewApplicants.hidden = !onApplicants;
+    gnbJobs.classList.toggle('active', !onApplicants);
+    gnbApplicants.classList.toggle('active', onApplicants);
+    if (onApplicants) renderCards(idx);
+    document.title = `${onApplicants ? '지원자 목록' : '공고 관리'} · C안 프로토타입`;
+    if (dropdownReady) {
+      setOpen(false);
+      clearSelection();
+    }
+    window.scrollTo(0, 0);
+  }
+  function go(view, idx = 0, replace = false) {
+    try { history[replace ? 'replaceState' : 'pushState']({ view, idx }, ''); } catch (_) {}
+    show(view, idx);
+  }
+  window.addEventListener('popstate', e => {
+    const s = e.state || { view: 'jobs', idx: 0 };
+    show(s.view, s.idx);
+  });
+  gnbJobs.addEventListener('click', () => { if (viewJobs.hidden) go('jobs'); });
+  gnbApplicants.addEventListener('click', () => { if (viewApplicants.hidden) go('applicants', 0); });
+  let dropdownReady = false;
+
+  // ---- 엑셀 저장 흐름 ----
+  const excel = document.getElementById('excel');
+  const excelBtn = document.getElementById('excelBtn');
+  const dropdown = document.getElementById('dropdown');
+  const snackbar = document.getElementById('snackbar');
+  const pctEl = document.getElementById('pct');
+  const done = document.getElementById('done');
+  let saving = false, timer = null, toastTimer = null;
+
+  function setOpen(open) {
+    dropdown.classList.toggle('open', open);
+    excelBtn.setAttribute('aria-expanded', open);
+  }
+
+  excelBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (saving) return;
+    setOpen(!dropdown.classList.contains('open'));
+  });
+
+  dropdown.addEventListener('click', e => {
+    const item = e.target.closest('[data-choice]');
+    if (!item) return;
+    e.stopPropagation();
+    setOpen(false);
+    confirmSave(item.dataset.choice);
+  });
+
+  document.addEventListener('click', e => {
+    if (!excel.contains(e.target)) setOpen(false);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') setOpen(false);
+  });
+
+  const snackTitle = snackbar.querySelector('.ttl');
+  let saveLabel = '';
+
+  // ---- 전체 공고 저장 확인 단계 (C안 전용) ----
+  const confirmDim = document.getElementById('confirmDim');
+  let pendingChoice = null;
+  function confirmSave(choice) {
+    pendingChoice = choice;
+    const total = JOBS.reduce((sum, j) => sum + j.counts[0], 0);
+    document.getElementById('confirmMsg').textContent = choice === 'ongoing'
+      ? `진행중 공고 ${JOBS.length}개의 지원자 ${total}명을 엑셀로 저장할까요?`
+      : '마감 공고 38개의 지원자를 엑셀로 저장할까요?';
+    confirmDim.classList.add('show');
+  }
+  document.getElementById('confirmCancel').addEventListener('click', () => confirmDim.classList.remove('show'));
+  document.getElementById('confirmOk').addEventListener('click', () => {
+    confirmDim.classList.remove('show');
+    startSave(pendingChoice);
+  });
+
+  function startSave(choice, label = CHOICE_LABEL[choice], title = '지원자 엑셀 저장 진행 중') {
+    saving = true;
+    saveLabel = label;
+    snackTitle.textContent = title;
+    excel.classList.add('saving');
+    excelBtn.setAttribute('aria-disabled', 'true');
+    tbDl.classList.add('saving');
+    snackbar.classList.add('show');
+    let pct = 0;
+    pctEl.textContent = pct;
+    timer = setInterval(() => {
+      pct = Math.min(100, pct + Math.ceil(Math.random() * 9) + 3);
+      pctEl.textContent = pct;
+      if (pct >= 100) {
+        clearInterval(timer);
+        setTimeout(() => finishSave(choice), 350);
+      }
+    }, 160);
+  }
+
+  function stopSave() {
+    clearInterval(timer);
+    saving = false;
+    excel.classList.remove('saving');
+    excelBtn.removeAttribute('aria-disabled');
+    tbDl.classList.remove('saving');
+    snackbar.classList.remove('show');
+  }
+
+  function finishSave(choice) {
+    stopSave();
+    log(`★ 저장 완료: ${saveLabel}`, true);
+    done.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => done.classList.remove('show'), 3000);
+  }
+
+  document.getElementById('cancelBtn').addEventListener('click', () => {
+    stopSave();
+    log('저장 취소됨');
+  });
+
+  // ---- 툴바 현재 공고 저장 버튼 ----
+  const tbDl = document.getElementById('tbDl');
+  tbDl.querySelector('button').addEventListener('click', () => {
+    if (saving) return;
+    startSave('current', '현재 공고 전체 지원자 (툴바 \'엑셀 저장\' 버튼)');
+  });
+
+  // ---- 지원자 선택 & 하단 액션바 (테스트 서버 A안과 동일 구성) ----
+  const actionbar = document.getElementById('actionbar');
+  const selCount = document.getElementById('selCount');
+  const abRead = document.getElementById('abRead');
+  const abDownload = document.getElementById('abDownload');
+  const abMenu = document.getElementById('abMenu');
+  const headCb = table.querySelector('.thead .cb');
+  const rowEls = [...table.querySelectorAll('.row:not(.thead)')];
+  const selected = new Set();
+
+  function renderSelection() {
+    rowEls.forEach((el, i) => {
+      const on = selected.has(i);
+      el.classList.toggle('selected', on);
+      el.querySelector('.cb').classList.toggle('on', on);
+    });
+    const n = selected.size;
+    headCb.classList.toggle('on', n > 0 && n === rowEls.length);
+    headCb.classList.toggle('mixed', n > 0 && n < rowEls.length);
+    selCount.textContent = `${n}명`;
+    // 미열람 지원자가 선택에 포함될 때만 열람 처리 가능
+    abRead.disabled = ![...selected].some(i => rows[i].unread);
+    actionbar.classList.toggle('show', n > 0);
+    if (!n) abMenu.classList.remove('open');
+  }
+  function clearSelection() {
+    selected.clear();
+    renderSelection();
+  }
+
+  table.addEventListener('click', e => {
+    const cell = e.target.closest('.c-chk');
+    if (!cell) return;
+    if (cell.closest('.thead')) {
+      if (selected.size === rowEls.length) selected.clear();
+      else rowEls.forEach((_, i) => selected.add(i));
+    } else {
+      const i = rowEls.indexOf(cell.closest('.row'));
+      selected.has(i) ? selected.delete(i) : selected.add(i);
+    }
+    renderSelection();
+  });
+
+  abDownload.addEventListener('click', e => {
+    e.stopPropagation();
+    abMenu.classList.toggle('open');
+  });
+  abMenu.addEventListener('click', e => {
+    const item = e.target.closest('[data-dl]');
+    if (!item) return;
+    e.stopPropagation();
+    abMenu.classList.remove('open');
+    if (saving) return;
+    const n = selected.size;
+    if (item.dataset.dl === 'excel') startSave('selected', `선택 지원자 ${n}명 - 지원자 정보 (Excel)`);
+    else startSave('selected', `선택 지원자 ${n}명 - 이력서 (PDF)`, '이력서 PDF 저장 진행 중');
+  });
+  document.addEventListener('click', e => {
+    if (!abMenu.contains(e.target) && !abDownload.contains(e.target)) abMenu.classList.remove('open');
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') abMenu.classList.remove('open');
+  });
+
+  // ---- 진행자 로그 (참가자 화면에는 보이지 않음) ----
+  const CHOICE_LABEL = { current: '현재 공고 지원자', ongoing: '진행중 공고 전체 지원자 (공고 영역)', closed: '마감 공고 전체 지원자 (공고 영역)' };
+  const logList = document.getElementById('logList');
+  const facil = document.getElementById('facil');
+  let startedAt = Date.now();
+  let entries = [];
+
+  function log(text, hit = false) {
+    const sec = ((Date.now() - startedAt) / 1000).toFixed(1);
+    entries.push(`${sec}s  ${text}`);
+    const li = document.createElement('li');
+    if (hit) li.className = 'hit';
+    li.innerHTML = `<span class="t">${sec}s</span>`;
+    li.append(text);
+    logList.appendChild(li);
+    logList.scrollTop = logList.scrollHeight;
+  }
+
+  // 캡처 단계에서 모든 클릭 기록 (첫 클릭 관찰용)
+  document.addEventListener('click', e => {
+    if (facil.contains(e.target)) return;
+    const t = e.target.closest('[data-log]');
+    log(t ? t.dataset.log : '빈 영역');
+  }, true);
+
+  document.addEventListener('keydown', e => {
+    if (e.shiftKey && (e.key === 'L' || e.key === 'l')) facil.classList.toggle('show');
+  });
+
+  document.getElementById('copyLog').addEventListener('click', () => {
+    navigator.clipboard?.writeText(entries.join('\n'));
+  });
+  document.getElementById('resetAll').addEventListener('click', () => {
+    stopSave();
+    setOpen(false);
+    done.classList.remove('show');
+    clearSelection();
+    confirmDim.classList.remove('show');
+    entries = [];
+    logList.innerHTML = '';
+    startedAt = Date.now();
+    facil.classList.remove('show');
+    // 다음 참가자는 공고 관리에서 시작
+    go('jobs', 0, true);
+  });
+
+  dropdownReady = true;
+  go('jobs', 0, true);
+</script>
+</body>
+</html>
