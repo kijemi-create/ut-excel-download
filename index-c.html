@@ -128,10 +128,6 @@
   .excel.saving:hover .tooltip { display: block; }
 
   /* Posting cards */
-  .postings-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-  .postings-label { font-size: 15px; font-weight: 600; line-height: 22px; color: var(--typo-secondary); }
-  .postings-label b { color: var(--typo-info); font-weight: 600; margin-left: 2px; }
-  .postings-head .dropdown { width: 168px; }
   .postings { position: relative; display: flex; align-items: center; gap: 16px; overflow: hidden; }
   .postings::after {
     content: ""; position: absolute; right: 0; top: 0; width: 80px; height: 114px;
@@ -199,17 +195,6 @@
   .icon-btn img { width: 20px; height: 20px; }
   .vsep { width: 1px; height: 20px; background: var(--fill-surface-raised); }
   .tb-end { display: flex; align-items: center; gap: 8px; }
-  .tb-dl { position: relative; }
-  .tb-tip {
-    position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
-    background: var(--fill-inverse); color: #fff; border-radius: 8px;
-    padding: 8px 12px; font-size: 12px; font-weight: 500; line-height: 18px; white-space: nowrap;
-    display: none; z-index: 30; pointer-events: none;
-  }
-  .tb-dl:hover .tb-tip { display: block; }
-  .tb-dl.saving .tb-tip { display: none; }
-  .tb-dl.saving button { cursor: default; color: var(--typo-disabled); border-color: var(--border-subtle); }
-  .tb-dl.saving img { opacity: .3; }
 
   /* List */
   .list { margin-top: 16px; }
@@ -483,24 +468,9 @@
 
 <main class="contents view" id="view-applicants" hidden>
   <div class="page-heading">
-    <h1>지원자 목록</h1>
+    <h1>지원자 관리</h1>
   </div>
 
-  <div class="postings-head">
-    <span class="postings-label">공고 <b>10</b></span>
-    <div class="excel" id="excel">
-      <button class="btn sm" id="excelBtn" aria-haspopup="menu" aria-expanded="false" data-log="[엑셀] 공고 영역 '공고 전체 지원자 저장' 버튼">
-        <img class="ic16" src="assets/download.svg" alt="">
-        공고 전체 지원자 저장
-        <img class="ic16" src="assets/select-down.svg" alt="">
-      </button>
-      <div class="tooltip" role="tooltip">엑셀 저장 중입니다.</div>
-      <div class="dropdown" id="dropdown" role="menu">
-        <button class="dd-item" role="menuitem" data-choice="ongoing" data-log="[엑셀] 공고 영역 > 진행중 공고 전체">진행중 공고 전체</button>
-        <button class="dd-item" role="menuitem" data-choice="closed" data-log="[엑셀] 공고 영역 > 마감 공고 전체">마감 공고 전체</button>
-      </div>
-    </div>
-  </div>
   <div class="postings">
     <button class="all-btn" data-log="공고 전체보기"><img src="assets/menu.svg" alt="">전체보기</button>
     <div class="cards" id="cards"></div>
@@ -528,10 +498,20 @@
         </div>
         <span class="vsep"></span>
         <div class="tb-end">
-          <div class="tb-dl" id="tbDl">
-            <button class="btn radius-md" data-log="[엑셀] 툴바 '엑셀 저장' 버튼 (현재 공고)"><img class="ic16" src="assets/download.svg" alt="">엑셀 저장</button>
-            <div class="tb-tip" role="tooltip">이 공고의 모든 단계 지원자를 엑셀로 저장해요</div>
-          </div>
+      <div class="excel" id="excel">
+        <button class="btn radius-md" id="excelBtn" aria-haspopup="menu" aria-expanded="false" data-log="[엑셀] 툴바 '엑셀 저장' 버튼">
+          <img class="ic16" src="assets/download.svg" alt="">
+          엑셀 저장
+          <img class="ic16" src="assets/select-down.svg" alt="">
+        </button>
+        <div class="tooltip" role="tooltip">엑셀 저장 중입니다.</div>
+        <div class="dropdown" id="dropdown" role="menu">
+          <button class="dd-item" role="menuitem" data-choice="current" data-log="[엑셀] 엑셀 저장 > 이 공고 지원자">이 공고 지원자</button>
+          <div class="dd-sep"></div>
+          <button class="dd-item" role="menuitem" data-choice="ongoing" data-log="[엑셀] 엑셀 저장 > 진행중 공고 전체">진행중 공고 전체</button>
+          <button class="dd-item" role="menuitem" data-choice="closed" data-log="[엑셀] 엑셀 저장 > 마감 공고 전체">마감 공고 전체</button>
+        </div>
+      </div>
         <button class="btn radius-md" data-log="채용 단계 편집"><img class="ic16" src="assets/edit.svg" alt="">채용 단계 편집</button>
         </div>
       </div>
@@ -759,7 +739,7 @@
     gnbJobs.classList.toggle('active', !onApplicants);
     gnbApplicants.classList.toggle('active', onApplicants);
     if (onApplicants) renderCards(idx);
-    document.title = `${onApplicants ? '지원자 목록' : '공고 관리'} · C안 프로토타입`;
+    document.title = `${onApplicants ? '지원자 관리' : '공고 관리'} · C안 프로토타입`;
     if (dropdownReady) {
       setOpen(false);
       clearSelection();
@@ -803,7 +783,8 @@
     if (!item) return;
     e.stopPropagation();
     setOpen(false);
-    confirmSave(item.dataset.choice);
+    if (item.dataset.choice === 'current') startSave('current');
+    else confirmSave(item.dataset.choice);
   });
 
   document.addEventListener('click', e => {
@@ -839,7 +820,6 @@
     snackTitle.textContent = title;
     excel.classList.add('saving');
     excelBtn.setAttribute('aria-disabled', 'true');
-    tbDl.classList.add('saving');
     snackbar.classList.add('show');
     let pct = 0;
     pctEl.textContent = pct;
@@ -858,7 +838,6 @@
     saving = false;
     excel.classList.remove('saving');
     excelBtn.removeAttribute('aria-disabled');
-    tbDl.classList.remove('saving');
     snackbar.classList.remove('show');
   }
 
@@ -873,13 +852,6 @@
   document.getElementById('cancelBtn').addEventListener('click', () => {
     stopSave();
     log('저장 취소됨');
-  });
-
-  // ---- 툴바 현재 공고 저장 버튼 ----
-  const tbDl = document.getElementById('tbDl');
-  tbDl.querySelector('button').addEventListener('click', () => {
-    if (saving) return;
-    startSave('current', '현재 공고 전체 지원자 (툴바 \'엑셀 저장\' 버튼)');
   });
 
   // ---- 지원자 선택 & 하단 액션바 (테스트 서버 A안과 동일 구성) ----
@@ -947,7 +919,7 @@
   });
 
   // ---- 진행자 로그 (참가자 화면에는 보이지 않음) ----
-  const CHOICE_LABEL = { current: '현재 공고 지원자', ongoing: '진행중 공고 전체 지원자 (공고 영역)', closed: '마감 공고 전체 지원자 (공고 영역)' };
+  const CHOICE_LABEL = { current: '이 공고 지원자 (툴바 엑셀 저장)', ongoing: '진행중 공고 전체 지원자 (툴바 엑셀 저장)', closed: '마감 공고 전체 지원자 (툴바 엑셀 저장)' };
   const logList = document.getElementById('logList');
   const facil = document.getElementById('facil');
   let startedAt = Date.now();

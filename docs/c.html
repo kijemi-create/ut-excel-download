@@ -128,10 +128,6 @@
   .excel.saving:hover .tooltip { display: block; }
 
   /* Posting cards */
-  .postings-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-  .postings-label { font-size: 15px; font-weight: 600; line-height: 22px; color: var(--typo-secondary); }
-  .postings-label b { color: var(--typo-info); font-weight: 600; margin-left: 2px; }
-  .postings-head .dropdown { width: 168px; }
   .postings { position: relative; display: flex; align-items: center; gap: 16px; overflow: hidden; }
   .postings::after {
     content: ""; position: absolute; right: 0; top: 0; width: 80px; height: 114px;
@@ -199,17 +195,6 @@
   .icon-btn img { width: 20px; height: 20px; }
   .vsep { width: 1px; height: 20px; background: var(--fill-surface-raised); }
   .tb-end { display: flex; align-items: center; gap: 8px; }
-  .tb-dl { position: relative; }
-  .tb-tip {
-    position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
-    background: var(--fill-inverse); color: #fff; border-radius: 8px;
-    padding: 8px 12px; font-size: 12px; font-weight: 500; line-height: 18px; white-space: nowrap;
-    display: none; z-index: 30; pointer-events: none;
-  }
-  .tb-dl:hover .tb-tip { display: block; }
-  .tb-dl.saving .tb-tip { display: none; }
-  .tb-dl.saving button { cursor: default; color: var(--typo-disabled); border-color: var(--border-subtle); }
-  .tb-dl.saving img { opacity: .3; }
 
   /* List */
   .list { margin-top: 16px; }
@@ -483,24 +468,9 @@
 
 <main class="contents view" id="view-applicants" hidden>
   <div class="page-heading">
-    <h1>지원자 목록</h1>
+    <h1>지원자 관리</h1>
   </div>
 
-  <div class="postings-head">
-    <span class="postings-label">공고 <b>10</b></span>
-    <div class="excel" id="excel">
-      <button class="btn sm" id="excelBtn" aria-haspopup="menu" aria-expanded="false" data-log="[엑셀] 공고 영역 '공고 전체 지원자 저장' 버튼">
-        <img class="ic16" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJtZWRpYS1maWxlcy9kb3dubG9hZCI+CjxwYXRoIGlkPSJ2ZWN0b3IiIGQ9Ik0xOS40NTg1IDE5Ljg0NTdDMTkuNzg0NCAxOS41Mjc2IDIwLjMwNjIgMTkuNTMzNiAyMC42MjQ1IDE5Ljg1OTRDMjAuOTQyOCAyMC4xODU0IDIwLjkzNjggMjAuNzA4IDIwLjYxMDggMjEuMDI2NEMyMC4wNDQ3IDIxLjU3OTEgMTkuMjgxIDIxLjg4NTcgMTguNDg4NyAyMS44ODU3SDUuMzcwNTdDNC41NzgyOSAyMS44ODU3IDMuODE0NjEgMjEuNTc5MSAzLjI0ODUgMjEuMDI2NEMyLjkyMjUzIDIwLjcwOCAyLjkxNjQ5IDIwLjE4NTQgMy4yMzQ4MyAxOS44NTk0QzMuNTUzMTcgMTkuNTMzNiA0LjA3NDk0IDE5LjUyNzUgNC40MDA4NSAxOS44NDU3QzQuNjU0NzEgMjAuMDkzNiA1LjAwMzMzIDIwLjIzNjMgNS4zNzA1NyAyMC4yMzYzSDE4LjQ4ODdDMTguODU1OSAyMC4yMzYzIDE5LjIwNDYgMjAuMDkzNiAxOS40NTg1IDE5Ljg0NTdaTTExLjEwNTkgMi44MjUyQzExLjEwNTkgMi4zNjk1NiAxMS40NzU1IDIgMTEuOTMxMSAyQzEyLjM4NjYgMi4wMDAxOCAxMi43NTUzIDIuMzY5NjcgMTIuNzU1MyAyLjgyNTJWMTMuMDM3MUwxNi4zNjc2IDkuNjk1MzFDMTYuNzAyMSA5LjM4NTk2IDE3LjIyNDMgOS40MDY3NyAxNy41MzM3IDkuNzQxMjFDMTcuODQzIDEwLjA3NTcgMTcuODIzMSAxMC41OTc4IDE3LjQ4ODcgMTAuOTA3MkwxMi40OTA3IDE1LjUzMDNDMTIuMTc0NSAxNS44MjI0IDExLjY4NjcgMTUuODIyNSAxMS4zNzA2IDE1LjUzMDNMNi4zNzM1IDEwLjkwNzJDNi4wMzkxMyAxMC41OTc5IDYuMDE4NDQgMTAuMDc1NyA2LjMyNzYxIDkuNzQxMjFDNi42MzY5NSA5LjQwNjgzIDcuMTU5MTUgOS4zODYxMyA3LjQ5MzYyIDkuNjk1MzFMMTEuMTA1OSAxMy4wMzcxVjIuODI1MloiIGZpbGw9IiMxMzE2MTgiLz4KPC9nPgo8L3N2Zz4K" alt="">
-        공고 전체 지원자 저장
-        <img class="ic16" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJhcnJvd3Mvc2VsZWN0LWRvd24iPgo8cGF0aCBpZD0idmVjdG9yIiBkPSJNMTUuOTYyNyA5QzE2Ljg0NzYgOSAxNy4zMjQ1IDEwLjAwMTcgMTYuNzQ4NiAxMC42NTA0TDEyLjc4NjcgMTUuMTE0M0MxMi4zNzM0IDE1LjU3OTggMTEuNjI3MyAxNS41Nzk4IDExLjIxMzkgMTUuMTE0M0w3LjI1MSAxMC42NTA0QzYuNjc1NjcgMTAuMDAxNyA3LjE1MzIxIDkgOC4wMzc5MSA5SDE1Ljk2MjdaIiBmaWxsPSIjMTMxNjE4Ii8+CjwvZz4KPC9zdmc+Cg==" alt="">
-      </button>
-      <div class="tooltip" role="tooltip">엑셀 저장 중입니다.</div>
-      <div class="dropdown" id="dropdown" role="menu">
-        <button class="dd-item" role="menuitem" data-choice="ongoing" data-log="[엑셀] 공고 영역 > 진행중 공고 전체">진행중 공고 전체</button>
-        <button class="dd-item" role="menuitem" data-choice="closed" data-log="[엑셀] 공고 영역 > 마감 공고 전체">마감 공고 전체</button>
-      </div>
-    </div>
-  </div>
   <div class="postings">
     <button class="all-btn" data-log="공고 전체보기"><img src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJpbnRlcmZhY2UvbWVudSI+CjxnIGlkPSJ2ZWN0b3IiPgo8cGF0aCBkPSJNMjAgMTguMjVDMjAuNDE0MiAxOC4yNSAyMC43NSAxOC41ODU4IDIwLjc1IDE5QzIwLjc1IDE5LjQxNDIgMjAuNDE0MiAxOS43NSAyMCAxOS43NUg0QzMuNTg1NzkgMTkuNzUgMy4yNSAxOS40MTQyIDMuMjUgMTlDMy4yNSAxOC41ODU4IDMuNTg1NzkgMTguMjUgNCAxOC4yNUgyMFoiIGZpbGw9IiMxMzE2MTgiLz4KPHBhdGggZD0iTTIwIDExLjI1QzIwLjQxNDIgMTEuMjUgMjAuNzUgMTEuNTg1OCAyMC43NSAxMkMyMC43NSAxMi40MTQyIDIwLjQxNDIgMTIuNzUgMjAgMTIuNzVINEMzLjU4NTc5IDEyLjc1IDMuMjUgMTIuNDE0MiAzLjI1IDEyQzMuMjUgMTEuNTg1OCAzLjU4NTc5IDExLjI1IDQgMTEuMjVIMjBaIiBmaWxsPSIjMTMxNjE4Ii8+CjxwYXRoIGQ9Ik0yMCA0LjI1QzIwLjQxNDIgNC4yNSAyMC43NSA0LjU4NTc5IDIwLjc1IDVDMjAuNzUgNS40MTQyMSAyMC40MTQyIDUuNzUgMjAgNS43NUg0QzMuNTg1NzkgNS43NSAzLjI1IDUuNDE0MjEgMy4yNSA1QzMuMjUgNC41ODU3OSAzLjU4NTc5IDQuMjUgNCA0LjI1SDIwWiIgZmlsbD0iIzEzMTYxOCIvPgo8L2c+CjwvZz4KPC9zdmc+Cg==" alt="">전체보기</button>
     <div class="cards" id="cards"></div>
@@ -528,10 +498,20 @@
         </div>
         <span class="vsep"></span>
         <div class="tb-end">
-          <div class="tb-dl" id="tbDl">
-            <button class="btn radius-md" data-log="[엑셀] 툴바 '엑셀 저장' 버튼 (현재 공고)"><img class="ic16" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJtZWRpYS1maWxlcy9kb3dubG9hZCI+CjxwYXRoIGlkPSJ2ZWN0b3IiIGQ9Ik0xOS40NTg1IDE5Ljg0NTdDMTkuNzg0NCAxOS41Mjc2IDIwLjMwNjIgMTkuNTMzNiAyMC42MjQ1IDE5Ljg1OTRDMjAuOTQyOCAyMC4xODU0IDIwLjkzNjggMjAuNzA4IDIwLjYxMDggMjEuMDI2NEMyMC4wNDQ3IDIxLjU3OTEgMTkuMjgxIDIxLjg4NTcgMTguNDg4NyAyMS44ODU3SDUuMzcwNTdDNC41NzgyOSAyMS44ODU3IDMuODE0NjEgMjEuNTc5MSAzLjI0ODUgMjEuMDI2NEMyLjkyMjUzIDIwLjcwOCAyLjkxNjQ5IDIwLjE4NTQgMy4yMzQ4MyAxOS44NTk0QzMuNTUzMTcgMTkuNTMzNiA0LjA3NDk0IDE5LjUyNzUgNC40MDA4NSAxOS44NDU3QzQuNjU0NzEgMjAuMDkzNiA1LjAwMzMzIDIwLjIzNjMgNS4zNzA1NyAyMC4yMzYzSDE4LjQ4ODdDMTguODU1OSAyMC4yMzYzIDE5LjIwNDYgMjAuMDkzNiAxOS40NTg1IDE5Ljg0NTdaTTExLjEwNTkgMi44MjUyQzExLjEwNTkgMi4zNjk1NiAxMS40NzU1IDIgMTEuOTMxMSAyQzEyLjM4NjYgMi4wMDAxOCAxMi43NTUzIDIuMzY5NjcgMTIuNzU1MyAyLjgyNTJWMTMuMDM3MUwxNi4zNjc2IDkuNjk1MzFDMTYuNzAyMSA5LjM4NTk2IDE3LjIyNDMgOS40MDY3NyAxNy41MzM3IDkuNzQxMjFDMTcuODQzIDEwLjA3NTcgMTcuODIzMSAxMC41OTc4IDE3LjQ4ODcgMTAuOTA3MkwxMi40OTA3IDE1LjUzMDNDMTIuMTc0NSAxNS44MjI0IDExLjY4NjcgMTUuODIyNSAxMS4zNzA2IDE1LjUzMDNMNi4zNzM1IDEwLjkwNzJDNi4wMzkxMyAxMC41OTc5IDYuMDE4NDQgMTAuMDc1NyA2LjMyNzYxIDkuNzQxMjFDNi42MzY5NSA5LjQwNjgzIDcuMTU5MTUgOS4zODYxMyA3LjQ5MzYyIDkuNjk1MzFMMTEuMTA1OSAxMy4wMzcxVjIuODI1MloiIGZpbGw9IiMxMzE2MTgiLz4KPC9nPgo8L3N2Zz4K" alt="">엑셀 저장</button>
-            <div class="tb-tip" role="tooltip">이 공고의 모든 단계 지원자를 엑셀로 저장해요</div>
-          </div>
+      <div class="excel" id="excel">
+        <button class="btn radius-md" id="excelBtn" aria-haspopup="menu" aria-expanded="false" data-log="[엑셀] 툴바 '엑셀 저장' 버튼">
+          <img class="ic16" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJtZWRpYS1maWxlcy9kb3dubG9hZCI+CjxwYXRoIGlkPSJ2ZWN0b3IiIGQ9Ik0xOS40NTg1IDE5Ljg0NTdDMTkuNzg0NCAxOS41Mjc2IDIwLjMwNjIgMTkuNTMzNiAyMC42MjQ1IDE5Ljg1OTRDMjAuOTQyOCAyMC4xODU0IDIwLjkzNjggMjAuNzA4IDIwLjYxMDggMjEuMDI2NEMyMC4wNDQ3IDIxLjU3OTEgMTkuMjgxIDIxLjg4NTcgMTguNDg4NyAyMS44ODU3SDUuMzcwNTdDNC41NzgyOSAyMS44ODU3IDMuODE0NjEgMjEuNTc5MSAzLjI0ODUgMjEuMDI2NEMyLjkyMjUzIDIwLjcwOCAyLjkxNjQ5IDIwLjE4NTQgMy4yMzQ4MyAxOS44NTk0QzMuNTUzMTcgMTkuNTMzNiA0LjA3NDk0IDE5LjUyNzUgNC40MDA4NSAxOS44NDU3QzQuNjU0NzEgMjAuMDkzNiA1LjAwMzMzIDIwLjIzNjMgNS4zNzA1NyAyMC4yMzYzSDE4LjQ4ODdDMTguODU1OSAyMC4yMzYzIDE5LjIwNDYgMjAuMDkzNiAxOS40NTg1IDE5Ljg0NTdaTTExLjEwNTkgMi44MjUyQzExLjEwNTkgMi4zNjk1NiAxMS40NzU1IDIgMTEuOTMxMSAyQzEyLjM4NjYgMi4wMDAxOCAxMi43NTUzIDIuMzY5NjcgMTIuNzU1MyAyLjgyNTJWMTMuMDM3MUwxNi4zNjc2IDkuNjk1MzFDMTYuNzAyMSA5LjM4NTk2IDE3LjIyNDMgOS40MDY3NyAxNy41MzM3IDkuNzQxMjFDMTcuODQzIDEwLjA3NTcgMTcuODIzMSAxMC41OTc4IDE3LjQ4ODcgMTAuOTA3MkwxMi40OTA3IDE1LjUzMDNDMTIuMTc0NSAxNS44MjI0IDExLjY4NjcgMTUuODIyNSAxMS4zNzA2IDE1LjUzMDNMNi4zNzM1IDEwLjkwNzJDNi4wMzkxMyAxMC41OTc5IDYuMDE4NDQgMTAuMDc1NyA2LjMyNzYxIDkuNzQxMjFDNi42MzY5NSA5LjQwNjgzIDcuMTU5MTUgOS4zODYxMyA3LjQ5MzYyIDkuNjk1MzFMMTEuMTA1OSAxMy4wMzcxVjIuODI1MloiIGZpbGw9IiMxMzE2MTgiLz4KPC9nPgo8L3N2Zz4K" alt="">
+          엑셀 저장
+          <img class="ic16" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJhcnJvd3Mvc2VsZWN0LWRvd24iPgo8cGF0aCBpZD0idmVjdG9yIiBkPSJNMTUuOTYyNyA5QzE2Ljg0NzYgOSAxNy4zMjQ1IDEwLjAwMTcgMTYuNzQ4NiAxMC42NTA0TDEyLjc4NjcgMTUuMTE0M0MxMi4zNzM0IDE1LjU3OTggMTEuNjI3MyAxNS41Nzk4IDExLjIxMzkgMTUuMTE0M0w3LjI1MSAxMC42NTA0QzYuNjc1NjcgMTAuMDAxNyA3LjE1MzIxIDkgOC4wMzc5MSA5SDE1Ljk2MjdaIiBmaWxsPSIjMTMxNjE4Ii8+CjwvZz4KPC9zdmc+Cg==" alt="">
+        </button>
+        <div class="tooltip" role="tooltip">엑셀 저장 중입니다.</div>
+        <div class="dropdown" id="dropdown" role="menu">
+          <button class="dd-item" role="menuitem" data-choice="current" data-log="[엑셀] 엑셀 저장 > 이 공고 지원자">이 공고 지원자</button>
+          <div class="dd-sep"></div>
+          <button class="dd-item" role="menuitem" data-choice="ongoing" data-log="[엑셀] 엑셀 저장 > 진행중 공고 전체">진행중 공고 전체</button>
+          <button class="dd-item" role="menuitem" data-choice="closed" data-log="[엑셀] 엑셀 저장 > 마감 공고 전체">마감 공고 전체</button>
+        </div>
+      </div>
         <button class="btn radius-md" data-log="채용 단계 편집"><img class="ic16" src="data:image/svg+xml;base64,PHN2ZyBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIiBvdmVyZmxvdz0idmlzaWJsZSIgc3R5bGU9ImRpc3BsYXk6IGJsb2NrOyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGlkPSJpbnRlcmZhY2UvZWRpdCI+CjxwYXRoIGlkPSJ2ZWN0b3IiIGQ9Ik0xNS41MyAzLjE1OTQ0QzE2LjYwMzkgMi4wODU1IDE4LjM0NTIgMi4wODU1IDE5LjQxOTEgMy4xNTk0NEwyMC44MzQxIDQuNTc0NDRDMjEuOTA3NiA1LjY0Nzk2IDIxLjkwODEgNy4zODgzMyAyMC44MzUyIDguNDYyNDVMOS4yOTgxMyAyMC4wMTIzQzguOTY5ODkgMjAuMzQwOSA4LjUyNDQ4IDIwLjUyNTYgOC4wNjAwMSAyMC41MjU2TDQuOTkwNjYgMjAuNTI1NkM0LjAxMzIyIDIwLjUyNTYgMy4yMjUyNyAxOS43MjQ5IDMuMjQwODkgMTguNzQ3NkwzLjI4MzE1IDE2LjEwMzRDMy4yOTA0MSAxNS42NDkgMy40NzQxNSAxNS4yMTUzIDMuNzk1NDkgMTQuODk0TDE1LjUzIDMuMTU5NDRaTTE4LjM1ODQgNC4yMjAxQzE3Ljg3MDMgMy43MzE5NSAxNy4wNzg4IDMuNzMxOTUgMTYuNTkwNyA0LjIyMDFMMTQuNzg1MiA2LjAyNTU2TDE3Ljk2OSA5LjIwOTMzTDE5Ljc3MzkgNy40MDIzOEMyMC4yNjE2IDYuOTE0MTQgMjAuMjYxNCA2LjEyMzA2IDE5Ljc3MzQgNS42MzUxTDE4LjM1ODQgNC4yMjAxWk0xNi45MDg5IDEwLjI3MDZMMTMuNzI0NiA3LjA4NjIyTDQuODU2MTUgMTUuOTU0NkM0LjgxMDI0IDE2LjAwMDUgNC43ODM5OSAxNi4wNjI1IDQuNzgyOTYgMTYuMTI3NEw0Ljc0MDcgMTguNzcxNkM0LjczODQ2IDE4LjkxMTIgNC44NTEwMyAxOS4wMjU2IDQuOTkwNjYgMTkuMDI1Nkw4LjA2MDAxIDE5LjAyNTZDOC4xMjYzNiAxOS4wMjU2IDguMTg5OTkgMTguOTk5MiA4LjIzNjg5IDE4Ljk1MjJMMTYuOTA4OSAxMC4yNzA2WiIgZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGZpbGw9IiMxMzE2MTgiLz4KPC9nPgo8L3N2Zz4K" alt="">채용 단계 편집</button>
         </div>
       </div>
@@ -759,7 +739,7 @@
     gnbJobs.classList.toggle('active', !onApplicants);
     gnbApplicants.classList.toggle('active', onApplicants);
     if (onApplicants) renderCards(idx);
-    document.title = `${onApplicants ? '지원자 목록' : '공고 관리'} · C안 프로토타입`;
+    document.title = `${onApplicants ? '지원자 관리' : '공고 관리'} · C안 프로토타입`;
     if (dropdownReady) {
       setOpen(false);
       clearSelection();
@@ -803,7 +783,8 @@
     if (!item) return;
     e.stopPropagation();
     setOpen(false);
-    confirmSave(item.dataset.choice);
+    if (item.dataset.choice === 'current') startSave('current');
+    else confirmSave(item.dataset.choice);
   });
 
   document.addEventListener('click', e => {
@@ -839,7 +820,6 @@
     snackTitle.textContent = title;
     excel.classList.add('saving');
     excelBtn.setAttribute('aria-disabled', 'true');
-    tbDl.classList.add('saving');
     snackbar.classList.add('show');
     let pct = 0;
     pctEl.textContent = pct;
@@ -858,7 +838,6 @@
     saving = false;
     excel.classList.remove('saving');
     excelBtn.removeAttribute('aria-disabled');
-    tbDl.classList.remove('saving');
     snackbar.classList.remove('show');
   }
 
@@ -873,13 +852,6 @@
   document.getElementById('cancelBtn').addEventListener('click', () => {
     stopSave();
     log('저장 취소됨');
-  });
-
-  // ---- 툴바 현재 공고 저장 버튼 ----
-  const tbDl = document.getElementById('tbDl');
-  tbDl.querySelector('button').addEventListener('click', () => {
-    if (saving) return;
-    startSave('current', '현재 공고 전체 지원자 (툴바 \'엑셀 저장\' 버튼)');
   });
 
   // ---- 지원자 선택 & 하단 액션바 (테스트 서버 A안과 동일 구성) ----
@@ -947,7 +919,7 @@
   });
 
   // ---- 진행자 로그 (참가자 화면에는 보이지 않음) ----
-  const CHOICE_LABEL = { current: '현재 공고 지원자', ongoing: '진행중 공고 전체 지원자 (공고 영역)', closed: '마감 공고 전체 지원자 (공고 영역)' };
+  const CHOICE_LABEL = { current: '이 공고 지원자 (툴바 엑셀 저장)', ongoing: '진행중 공고 전체 지원자 (툴바 엑셀 저장)', closed: '마감 공고 전체 지원자 (툴바 엑셀 저장)' };
   const logList = document.getElementById('logList');
   const facil = document.getElementById('facil');
   let startedAt = Date.now();

@@ -99,46 +99,49 @@ def to_variant_a(html: str) -> str:
 
 
 def to_variant_c(html: str) -> str:
-    """C-2 범위별 분리안 (공고 관리는 변경 없음).
+    """C안: 진입점 통일 + 타이틀 변경 (공고 관리는 변경 없음).
 
-    - 현재 공고 저장: 지원자 목록 툴바의 '엑셀 저장' 텍스트 버튼
-    - 전체 공고 저장: 공고 카드 영역('공고' 라벨 줄)의 '공고 전체 지원자 저장' 드롭다운(진행중/마감) + 확인 단계
+    - 타이틀 '지원자 목록' → '지원자 관리' (공고 선택 영역과 지원자 목록을 함께 포괄)
+    - 엑셀 저장 진입점을 테이블 툴바 '엑셀 저장 ▾' 하나로 통일
+      (이 공고 지원자 / 진행중 공고 전체 / 마감 공고 전체, 전체 공고는 확인 단계)
     """
     html = html.replace('B안 프로토타입', 'C안 프로토타입')
 
-    # 1) 헤더의 '전체 지원자 엑셀 저장'을 떼어 공고 카드 영역 위 '공고' 라벨 줄로 이동
+    # 1) 타이틀
+    html = replace_once(html, '    <h1>지원자 목록</h1>', '    <h1>지원자 관리</h1>')
+    html = replace_once(html, "${onApplicants ? '지원자 목록' : '공고 관리'}", "${onApplicants ? '지원자 관리' : '공고 관리'}")
+
+    # 2) 헤더의 저장 버튼을 떼어 툴바 '채용 단계 편집' 왼쪽으로 이동
     old_excel = html[html.index('    <div class="excel" id="excel">'):html.index('  </div>\n\n  <div class="postings">')]
     html = replace_once(html, old_excel, '')
     new_excel = (old_excel
-        .replace('<button class="btn" id="excelBtn"', '<button class="btn sm" id="excelBtn"')
-        .replace('data-log="[엑셀] 전체 지원자 엑셀 저장 버튼"', 'data-log="[엑셀] 공고 영역 \'공고 전체 지원자 저장\' 버튼"')
-        .replace('        전체 지원자 엑셀 저장\n', '        공고 전체 지원자 저장\n')
-        .replace('        <button class="dd-item" role="menuitem" data-choice="current" data-log="[엑셀] 현재 공고 지원자">현재 공고 지원자</button>\n'
-                 '        <div class="dd-sep"></div>\n', '')
-        .replace('"[엑셀] 진행중 공고 지원자">진행중 공고 지원자</button>', '"[엑셀] 공고 영역 > 진행중 공고 전체">진행중 공고 전체</button>')
-        .replace('"[엑셀] 마감 공고 지원자">마감 공고 지원자</button>', '"[엑셀] 공고 영역 > 마감 공고 전체">마감 공고 전체</button>'))
+        .replace('<button class="btn" id="excelBtn"', '<button class="btn radius-md" id="excelBtn"')
+        .replace('data-log="[엑셀] 전체 지원자 엑셀 저장 버튼"', 'data-log="[엑셀] 툴바 \'엑셀 저장\' 버튼"')
+        .replace('        전체 지원자 엑셀 저장\n', '        엑셀 저장\n')
+        .replace('data-log="[엑셀] 현재 공고 지원자">현재 공고 지원자</button>', 'data-log="[엑셀] 엑셀 저장 > 이 공고 지원자">이 공고 지원자</button>')
+        .replace('data-log="[엑셀] 진행중 공고 지원자">진행중 공고 지원자</button>', 'data-log="[엑셀] 엑셀 저장 > 진행중 공고 전체">진행중 공고 전체</button>')
+        .replace('data-log="[엑셀] 마감 공고 지원자">마감 공고 지원자</button>', 'data-log="[엑셀] 엑셀 저장 > 마감 공고 전체">마감 공고 전체</button>'))
+    assert '이 공고 지원자' in new_excel and '마감 공고 전체' in new_excel
+    new_excel = '\n'.join('      ' + line[4:] if line.startswith('    ') else line for line in new_excel.rstrip('\n').split('\n'))
     html = replace_once(
         html,
-        '  <div class="postings">',
-        '  <div class="postings-head">\n'
-        '    <span class="postings-label">공고 <b>10</b></span>\n'
-        + new_excel.replace('\n    ', '\n    ') +
-        '  </div>\n'
-        '  <div class="postings">')
+        '        <button class="btn radius-md" data-log="채용 단계 편집">',
+        '        <div class="tb-end">\n'
+        + new_excel + '\n'
+        '        <button class="btn radius-md" data-log="채용 단계 편집">')
+    html = replace_once(html, '채용 단계 편집</button>\n', '채용 단계 편집</button>\n        </div>\n')
     html = replace_once(
         html,
-        '  .postings { position: relative;',
-        '  .postings-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }\n'
-        '  .postings-label { font-size: 15px; font-weight: 600; line-height: 22px; color: var(--typo-secondary); }\n'
-        '  .postings-label b { color: var(--typo-info); font-weight: 600; margin-left: 2px; }\n'
-        '  .postings-head .dropdown { width: 168px; }\n'
-        '  .postings { position: relative;')
+        VSEP_CSS,
+        VSEP_CSS + '  .tb-end { display: flex; align-items: center; gap: 8px; }\n')
 
-    # 2) 진행중/마감 선택 시 확인 단계
+    # 3) 이 공고는 바로 저장, 전체 공고(진행중/마감)는 확인 단계
     html = replace_once(
         html,
         '    setOpen(false);\n    startSave(item.dataset.choice);\n',
-        '    setOpen(false);\n    confirmSave(item.dataset.choice);\n')
+        '    setOpen(false);\n'
+        "    if (item.dataset.choice === 'current') startSave('current');\n"
+        '    else confirmSave(item.dataset.choice);\n')
     html = replace_once(
         html,
         '  function startSave(choice,',
@@ -185,13 +188,6 @@ def to_variant_c(html: str) -> str:
         '  .confirm-btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; }\n\n'
         '  /* Done toast */')
 
-    # 3) 툴바에 범위가 드러나는 '엑셀 저장' 텍스트 버튼 (현재 공고)
-    html = add_toolbar_save(
-        html,
-        button='<button class="btn radius-md" data-log="[엑셀] 툴바 \'엑셀 저장\' 버튼 (현재 공고)"><img class="ic16" src="assets/download.svg" alt="">엑셀 저장</button>',
-        tip='이 공고의 모든 단계 지원자를 엑셀로 저장해요',
-        label='현재 공고 전체 지원자 (툴바 \\\'엑셀 저장\\\' 버튼)')
-
     # 4) 액션바 '다운로드' → 받는 파일이 드러나는 이름
     html = replace_once(html, '</svg></span>다운로드</button>', '</svg></span>엑셀·이력서</button>')
     html = replace_once(
@@ -200,12 +196,11 @@ def to_variant_c(html: str) -> str:
         '  .ab-dl { position: relative; }\n'
         '  .ab-dl .ab-btn { width: auto; min-width: 48px; }\n')
 
-    # 5) 진행자 로그 라벨
+    # 5) 진행자 로그 라벨, 초기화 시 확인 창 닫기
     html = replace_once(
         html,
         "  const CHOICE_LABEL = { current: '현재 공고 지원자', ongoing: '진행중 공고 지원자', closed: '마감 공고 지원자' };",
-        "  const CHOICE_LABEL = { current: '현재 공고 지원자', ongoing: '진행중 공고 전체 지원자 (공고 영역)', closed: '마감 공고 전체 지원자 (공고 영역)' };")
-    # 초기화 시 확인 창도 닫기
+        "  const CHOICE_LABEL = { current: '이 공고 지원자 (툴바 엑셀 저장)', ongoing: '진행중 공고 전체 지원자 (툴바 엑셀 저장)', closed: '마감 공고 전체 지원자 (툴바 엑셀 저장)' };")
     html = replace_once(html, '    clearSelection();\n    entries = [];', '    clearSelection();\n    confirmDim.classList.remove(\'show\');\n    entries = [];')
     return html
 

@@ -5,7 +5,7 @@
 - 안내 페이지: https://kijemi-create.github.io/ut-excel-download/
 - A안 (현재 구조): https://kijemi-create.github.io/ut-excel-download/a.html
 - B안 (드롭다운 통합안): https://kijemi-create.github.io/ut-excel-download/b.html
-- C안 (범위별 분리안): https://kijemi-create.github.io/ut-excel-download/c.html
+- C안 (툴바 통합안): https://kijemi-create.github.io/ut-excel-download/c.html
 
 ## 로컬에서 보기
 
